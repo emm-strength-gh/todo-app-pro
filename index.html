@@ -1,0 +1,2767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Busy Bee 🐝</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #f1f3ee;
+    --surface: #ffffff;
+    --ink: #1b2420;
+    --muted: #6b736c;
+    --faint: #9aa099;
+    --pine: #2e5a4e;
+    --pine-dark: #244a40;
+    --gold: #b07c12;
+    --gold-soft: #fbf3df;
+    --clay: #b34732;
+    --clay-soft: #fae7e2;
+    --daily: #2f6d8f;
+    --daily-soft: #e4eff5;
+    --border: #e2e5df;
+    --border-strong: #d2d6cd;
+    --shadow: 0 1px 2px rgba(27,36,32,.05), 0 8px 24px rgba(27,36,32,.06);
+    --radius: 14px;
+    color-scheme: light;
+  }
+  html[data-theme="dark"] {
+    --bg: #14171a;
+    --surface: #1d2125;
+    --ink: #e8eae6;
+    --muted: #9aa39d;
+    --faint: #6c756e;
+    --pine: #6bbfa3;
+    --pine-dark: #5aab90;
+    --gold: #e0b24c;
+    --gold-soft: #38311d;
+    --clay: #e08a73;
+    --clay-soft: #3a261f;
+    --daily: #6fb6d6;
+    --daily-soft: #1f2e36;
+    --border: #2c3137;
+    --border-strong: #3a4047;
+    --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.35);
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    font-family: "Inter", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+
+  /* ---------- Header ---------- */
+  header.bar {
+    position: sticky; top: 0; z-index: 50;
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 12px; padding: 14px 22px;
+    background: rgba(241,243,238,.82);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--border);
+  }
+  .brand {
+    display: flex; align-items: center; gap: 10px;
+    font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 19px; letter-spacing: -.01em;
+  }
+  .brand .mark { width: 22px; height: 22px; border-radius: 7px; background: var(--pine); position: relative; flex: none; }
+  .brand .mark::after {
+    content: ""; position: absolute; inset: 6px 6px auto 6px; height: 2px; background: #fff; border-radius: 2px;
+    box-shadow: 0 4px 0 rgba(255,255,255,.55), 0 8px 0 rgba(255,255,255,.3);
+  }
+  .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+  .bar-right { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+  .icon-chip { padding: 9px; width: 38px; height: 38px; justify-content: center; }
+  .icon-chip svg { width: 17px; height: 17px; }
+  .tile .lock { color: var(--faint); flex: none; display: grid; place-items: center; }
+  .tile .lock svg { width: 17px; height: 17px; }
+  .head-lock { color: var(--faint); display: inline-flex; vertical-align: middle; }
+  .head-lock svg { width: 18px; height: 18px; }
+  .pw-warn { font-size: 12.5px; color: var(--muted); background: var(--gold-soft); border: 1px solid var(--border); border-radius: 9px; padding: 9px 11px; margin: 0 0 14px; line-height: 1.4; }
+  .pw-check { display: flex; align-items: center; gap: 9px; margin: 2px 0 14px; cursor: pointer; font-size: 14px; color: var(--ink); }
+  .pw-check input { width: 17px; height: 17px; accent-color: var(--pine); }
+  .pw-fields { display: none; }
+  .pw-fields.show { display: block; }
+
+  button {
+    font-family: inherit; cursor: pointer; border: none; border-radius: 999px;
+    font-size: 14px; font-weight: 500;
+    transition: background .15s ease, transform .05s ease, box-shadow .15s ease, color .15s ease;
+  }
+  button:active { transform: translateY(1px); }
+  button:focus-visible { outline: 2px solid var(--pine); outline-offset: 2px; }
+
+  .chip {
+    display: inline-flex; align-items: center; gap: 7px; padding: 9px 16px;
+    background: var(--surface); color: var(--ink); border: 1px solid var(--border-strong); box-shadow: var(--shadow);
+  }
+  .chip:hover { background: #fafbf9; }
+  .chip svg { width: 16px; height: 16px; }
+  .chip.primary { background: var(--pine); color: #fff; border-color: var(--pine); }
+  .chip.primary:hover { background: var(--pine-dark); }
+
+  /* ---------- Layout ---------- */
+  .layout { display: flex; min-height: 100vh; }
+  .view { display: none; animation: rise .25s ease both; }
+  .view.active { display: block; }
+  @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+  /* Sidebar */
+  .sidebar {
+    width: 248px; flex: none; display: flex; flex-direction: column;
+    background: var(--surface); border-right: 1px solid var(--border);
+    position: sticky; top: 0; height: 100vh; z-index: 60; transition: width .18s ease;
+  }
+  .side-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 16px 14px 14px; }
+  .side-head .brand { display: flex; align-items: center; gap: 10px; font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 17px; letter-spacing: -.01em; overflow: hidden; white-space: nowrap; }
+  .side-head .mark { width: 20px; height: 20px; border-radius: 6px; background: var(--pine); position: relative; flex: none; }
+  .side-head .mark::after { content: ""; position: absolute; inset: 5px 5px auto 5px; height: 2px; background: #fff; border-radius: 2px; box-shadow: 0 4px 0 rgba(255,255,255,.55), 0 7px 0 rgba(255,255,255,.3); }
+  .icon-btn { width: 34px; height: 34px; flex: none; display: grid; place-items: center; border-radius: 9px; background: transparent; color: var(--muted); }
+  .icon-btn:hover { background: var(--bg); color: var(--ink); }
+  .icon-btn svg { width: 18px; height: 18px; }
+  .side-nav { flex: 1; overflow-y: auto; padding: 6px 10px; }
+  .side-foot { padding: 10px 10px 14px; border-top: 1px solid var(--border); }
+  .nav-cap { font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); padding: 16px 12px 6px; }
+  .nav-item {
+    width: 100%; display: flex; align-items: center; gap: 11px; padding: 10px 12px; margin: 2px 0;
+    border-radius: 10px; background: transparent; color: var(--ink); font-size: 14.5px; font-weight: 500; text-align: left;
+    border-left: 3px solid transparent;
+  }
+  .nav-item:hover { background: var(--bg); }
+  .nav-item.active { background: var(--pine); color: #fff; }
+  .nav-item.active .nav-ic { color: #fff; }
+  .nav-item.add { color: var(--muted); }
+  .nav-ic { flex: none; width: 22px; height: 22px; display: grid; place-items: center; color: var(--muted); }
+  .nav-ic svg { width: 18px; height: 18px; }
+  .nav-item.active .nav-ic svg { stroke: #fff; }
+  .nav-label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
+  .nav-lock { flex: none; color: currentColor; opacity: .6; display: grid; place-items: center; }
+  .nav-lock svg { width: 15px; height: 15px; }
+
+  /* Collapsed (icons only) */
+  .layout.collapsed .sidebar { width: 64px; }
+  .layout.collapsed .nav-label,
+  .layout.collapsed .brand-txt,
+  .layout.collapsed .nav-cap span,
+  .layout.collapsed .nav-lock { display: none; }
+  .layout.collapsed .nav-cap { padding: 14px 0 4px; text-align: center; }
+  .layout.collapsed .nav-item { justify-content: center; padding: 10px 0; gap: 0; }
+  .layout.collapsed .side-head { justify-content: center; }
+  .layout.collapsed .side-head .brand { gap: 0; }
+  .layout.collapsed #collapseBtn svg { transform: rotate(180deg); }
+
+  /* Main + topbar */
+  .main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+  .topbar {
+    position: sticky; top: 0; z-index: 40; display: flex; align-items: center; gap: 14px;
+    padding: 13px 24px; background: var(--bg); border-bottom: 1px solid var(--border);
+  }
+  .top-date { font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); white-space: nowrap; }
+  .top-search { position: relative; margin-left: auto; width: min(360px, 50%); }
+  .top-search input { width: 100%; font-family: inherit; font-size: 14px; color: var(--ink); padding: 9px 36px 9px 36px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); }
+  .top-search input::placeholder { color: var(--faint); }
+  .top-search input:focus { outline: none; border-color: var(--pine); box-shadow: 0 0 0 3px rgba(46,90,78,.12); }
+  .top-search input::-webkit-search-cancel-button { display: none; }
+  .top-search .search-ic { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); width: 16px; height: 16px; color: var(--faint); pointer-events: none; }
+  .top-search .search-clear { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); width: 26px; height: 26px; border: none; background: transparent; color: var(--faint); border-radius: 7px; display: none; align-items: center; justify-content: center; cursor: pointer; }
+  .top-search .search-clear svg { width: 15px; height: 15px; }
+  .top-search .search-clear:hover { background: var(--bg); color: var(--ink); }
+  .menu { display: none; }
+  .content { flex: 1; padding: 30px 24px 96px; max-width: 940px; width: 100%; }
+  .page-title { font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 30px; letter-spacing: -.02em; margin: 0 0 18px; }
+
+  /* Overview cards */
+  .ov-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); padding: 20px 22px; margin-bottom: 18px; }
+  .ov-card-head { display: flex; align-items: center; gap: 11px; margin: 0 0 6px; cursor: pointer; }
+  .ov-dot { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+  .ov-card-head h3 { font-family: "Bricolage Grotesque", sans-serif; font-weight: 600; font-size: 18px; margin: 0; flex: 1; }
+  .ov-card-head .ov-open { color: var(--faint); display: grid; place-items: center; }
+  .ov-card-head .ov-open svg { width: 18px; height: 18px; }
+  .ov-card-head:hover .ov-open { color: var(--pine); }
+  .ov-count { font-size: 12.5px; color: var(--muted); margin: 0 0 12px; }
+  .ov-empty { font-size: 13.5px; color: var(--faint); padding: 8px 0 2px; }
+  .ov-locked { display: flex; align-items: center; gap: 8px; color: var(--muted); font-size: 13.5px; padding: 6px 0; }
+  .ov-locked svg { width: 16px; height: 16px; }
+  .ov-row { display: flex; align-items: center; gap: 12px; padding: 9px 0; border-top: 1px solid var(--border); }
+  .ov-row:first-of-type { border-top: none; }
+  .ov-row .ov-txt { flex: 1; min-width: 0; font-size: 14.5px; overflow: hidden; text-overflow: ellipsis; }
+  .ov-row.done .ov-txt { color: var(--faint); text-decoration: line-through; text-decoration-color: var(--gold); }
+  .ov-more { font-size: 12.5px; color: var(--pine); padding-top: 10px; cursor: pointer; }
+
+  /* Per-row delete button */
+  .row-del { flex: none; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 8px; background: transparent; color: var(--faint); }
+  .row-del:hover { background: var(--clay-soft); color: var(--clay); }
+  .row-del svg { width: 16px; height: 16px; }
+
+  /* Floating action button */
+  .fab {
+    position: fixed; right: 24px; bottom: 24px; z-index: 80;
+    display: inline-flex; align-items: center; gap: 8px; padding: 13px 20px 13px 16px;
+    background: var(--pine); color: #fff; border-radius: 999px; font-size: 15px; font-weight: 600;
+    box-shadow: 0 10px 30px rgba(27,36,32,.28);
+  }
+  .fab:hover { background: var(--pine-dark); }
+  .fab svg { width: 20px; height: 20px; }
+
+  .scrim { display: none; }
+
+  /* Counters column (right, anchored, collapsible) */
+  .statsbar { width: 232px; flex: none; border-left: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; height: 100vh; display: flex; flex-direction: column; transition: width .18s ease; }
+  .stats-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 16px 10px; }
+  .stats-title { font-family: "Bricolage Grotesque", sans-serif; font-weight: 600; font-size: 16px; }
+  .stats-body { padding: 6px 16px 18px; overflow-y: auto; }
+  .stat-block { margin-bottom: 20px; }
+  .stat-block .stat-cap { font-size: 11px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--faint); margin: 0 0 8px; }
+  .stat-line { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 6px 0; border-top: 1px solid var(--border); font-size: 14px; color: var(--muted); }
+  .stat-line:first-of-type { border-top: none; }
+  .stat-line b { font-family: "Bricolage Grotesque", sans-serif; font-size: 20px; font-weight: 700; color: var(--ink); }
+  .stats-note { font-size: 11.5px; color: var(--faint); line-height: 1.4; margin: 4px 0 0; }
+  .stats-rail { display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; gap: 10px; padding-top: 16px; background: transparent; color: var(--muted); }
+  .stats-rail:hover { color: var(--ink); background: var(--bg); }
+  .stats-rail svg { width: 18px; height: 18px; }
+  .stats-rail-txt { writing-mode: vertical-rl; font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; }
+  .layout.stats-collapsed .statsbar { width: 44px; }
+  .layout.stats-collapsed .stats-head,
+  .layout.stats-collapsed .stats-body { display: none; }
+  .layout.stats-collapsed .stats-rail { display: flex; }
+
+  /* Inline rename (list title) */
+  .title-edit { width: 30px; height: 30px; display: inline-grid; place-items: center; border-radius: 8px; background: transparent; color: var(--faint); vertical-align: middle; }
+  .title-edit:hover { background: var(--bg); color: var(--pine); }
+  .title-edit svg { width: 16px; height: 16px; }
+  .title-input { font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 26px; letter-spacing: -.02em; color: var(--ink); background: var(--surface); border: 1.5px solid var(--pine); border-radius: 10px; padding: 4px 10px; box-shadow: 0 0 0 3px rgba(46,90,78,.12); outline: none; max-width: 100%; }
+
+  /* Inline item edit */
+  .row-edit { flex: none; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 8px; background: transparent; color: var(--faint); }
+  .row-edit:hover { background: var(--bg); color: var(--pine); }
+  .row-edit svg { width: 15px; height: 15px; }
+  .item-edit { flex: 1; min-width: 0; font-family: inherit; font-size: 15px; color: var(--ink); background: var(--surface); border: 1.5px solid var(--pine); border-radius: 9px; padding: 7px 10px; outline: none; box-shadow: 0 0 0 3px rgba(46,90,78,.12); }
+
+  @media (max-width: 1080px) { .statsbar { display: none; } }
+
+  @media (max-width: 820px) {
+    .menu { display: grid; }
+    .sidebar { position: fixed; left: 0; top: 0; height: 100vh; transform: translateX(-100%); box-shadow: 0 20px 60px rgba(0,0,0,.3); }
+    .layout.nav-open .sidebar { transform: translateX(0); }
+    .layout.collapsed .sidebar { width: 248px; } /* on mobile, drawer is full, not icons-only */
+    .layout.collapsed .nav-label, .layout.collapsed .brand-txt, .layout.collapsed .nav-cap span, .layout.collapsed .nav-lock { display: revert; }
+    .layout.collapsed .nav-item { justify-content: flex-start; padding: 10px 12px; gap: 11px; }
+    .scrim { display: block; position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 55; opacity: 0; pointer-events: none; transition: opacity .18s ease; }
+    .layout.nav-open .scrim { opacity: 1; pointer-events: auto; }
+    .content { padding: 22px 16px 96px; }
+    .top-search { width: auto; flex: 1; }
+  }
+
+  /* ---------- Home ---------- */
+  .eyebrow { font-size: 12px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--pine); margin: 0 0 10px; }
+  .home h1 {
+    font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 44px; line-height: 1.04; letter-spacing: -.02em; margin: 0 0 14px;
+  }
+  .home p.lede { font-size: 16px; color: var(--muted); margin: 0 0 36px; max-width: 46ch; }
+  .session-note { font-size: 13px; color: var(--muted); background: var(--gold-soft); border: 1px solid var(--border); border-radius: 10px; padding: 11px 14px; margin: 0 0 22px; line-height: 1.45; }
+  .session-note b { color: var(--ink); }
+
+  .tiles { display: flex; flex-direction: column; gap: 14px; }
+  .tile {
+    display: flex; align-items: center; gap: 20px; width: 100%; text-align: left; padding: 24px 26px;
+    background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+  }
+  .tile:hover { box-shadow: 0 1px 2px rgba(27,36,32,.05), 0 14px 34px rgba(27,36,32,.10); }
+  .tile .glyph { flex: none; width: 52px; height: 52px; border-radius: 12px; display: grid; place-items: center; }
+  .tile .glyph svg { width: 26px; height: 26px; }
+  .tile .label { flex: 1; min-width: 0; }
+  .tile .label .t { font-family: "Bricolage Grotesque", sans-serif; font-weight: 600; font-size: 20px; }
+  .tile .label .s { color: var(--muted); font-size: 14px; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tile .arrow { color: var(--faint); flex: none; }
+
+  .tile.add {
+    justify-content: center; gap: 10px; color: var(--pine); font-weight: 600; font-size: 15px;
+    background: transparent; border: 1.5px dashed var(--border-strong); box-shadow: none; padding: 18px;
+  }
+  .tile.add:hover { border-color: var(--pine); background: #eef4f1; box-shadow: none; }
+  .tile.add svg { width: 18px; height: 18px; }
+
+  .stat-group { margin-top: 22px; }
+  .stat-cap { font-size: 12px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 8px; }
+  .stat-row { display: flex; gap: 14px; }
+
+  /* ---------- Search ---------- */
+  .search { position: relative; margin: 0 0 26px; }
+  .search input { width: 100%; font-family: inherit; font-size: 15px; color: var(--ink); padding: 13px 42px 13px 42px; border: 1px solid var(--border-strong); border-radius: 12px; background: var(--surface); }
+  .search input::placeholder { color: var(--faint); }
+  .search input:focus { outline: none; border-color: var(--pine); box-shadow: 0 0 0 3px rgba(46,90,78,.12); }
+  .search input::-webkit-search-cancel-button { display: none; }
+  .search-ic { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); width: 18px; height: 18px; color: var(--faint); pointer-events: none; }
+  .search-clear { position: absolute; right: 7px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border: none; background: transparent; color: var(--faint); border-radius: 8px; display: none; align-items: center; justify-content: center; cursor: pointer; }
+  .search-clear svg { width: 16px; height: 16px; }
+  .search-clear:hover { background: var(--bg); color: var(--ink); }
+  .results-head { font-size: 13px; color: var(--muted); margin: 0 0 14px; }
+  .result { display: flex; align-items: center; gap: 14px; width: 100%; text-align: left; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 10px; cursor: pointer; }
+  .result:hover { box-shadow: 0 1px 2px rgba(27,36,32,.05), 0 12px 28px rgba(27,36,32,.10); }
+  .result .r-ic { flex: none; width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center; }
+  .result .r-ic svg { width: 19px; height: 19px; }
+  .result .r-main { flex: 1; min-width: 0; }
+  .result .r-title { font-size: 15px; color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .result.done-hit .r-title { color: var(--faint); text-decoration: line-through; text-decoration-color: var(--gold); }
+  .result .r-ctx { font-size: 12.5px; color: var(--muted); margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .result .r-tag { flex: none; font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); background: var(--bg); border: 1px solid var(--border); padding: 3px 8px; border-radius: 999px; }
+  .results-empty { text-align: center; color: var(--faint); padding: 30px 10px; font-size: 14px; }
+  .stat { flex: 1; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px 18px; }
+  .stat .n { font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 28px; }
+  .stat .k { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+  /* ---------- List view ---------- */
+  .section-head {
+    font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 26px; letter-spacing: -.015em;
+    margin: 0 0 4px; display: flex; align-items: center; gap: 11px; flex-wrap: wrap;
+  }
+  .section-head .tag { font-family: "Inter", sans-serif; font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; }
+  .section-sub { color: var(--muted); font-size: 14px; margin: 6px 0 22px; }
+
+  .panel { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px; margin-bottom: 22px; }
+  .panel-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .panel h2 { font-family: "Bricolage Grotesque", sans-serif; font-weight: 600; font-size: 15px; letter-spacing: .02em; margin: 0; color: var(--ink); display: flex; align-items: center; gap: 8px; }
+  .panel h2 .count { font-family: "Inter", sans-serif; font-size: 12px; font-weight: 600; color: var(--muted); background: var(--bg); border: 1px solid var(--border); padding: 2px 9px; border-radius: 999px; }
+
+  .composer { display: flex; gap: 10px; }
+  .composer input[type="text"] { flex: 1; font-family: inherit; font-size: 15px; color: var(--ink); padding: 12px 14px; border: 1px solid var(--border-strong); border-radius: 10px; background: #fcfdfb; }
+  .composer input::placeholder { color: var(--faint); }
+  .composer input:focus { outline: none; border-color: var(--pine); box-shadow: 0 0 0 3px rgba(46,90,78,.12); }
+  .btn-solid { padding: 12px 18px; background: var(--pine); color: #fff; border-radius: 10px; font-weight: 600; }
+  .btn-solid:hover { background: var(--pine-dark); }
+  .btn-solid.danger { background: var(--clay); }
+  .btn-solid.danger:hover:not(:disabled) { background: #9a3a28; }
+  .btn-solid:disabled { opacity: .45; cursor: not-allowed; }
+  .btn-ghost { padding: 12px 16px; background: transparent; color: var(--muted); border: 1px solid var(--border-strong); border-radius: 10px; font-weight: 500; }
+  .btn-ghost:hover:not(:disabled) { background: #fafbf9; color: var(--ink); }
+  .btn-ghost:disabled { opacity: .45; cursor: not-allowed; }
+
+  .btn-mini { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; font-size: 13px; font-weight: 600; background: var(--gold-soft); color: var(--gold); border: 1px solid #ecd9a6; border-radius: 999px; white-space: nowrap; }
+  .btn-mini:hover:not(:disabled) { background: #f6e9c6; }
+  .btn-mini:disabled { opacity: .4; cursor: not-allowed; }
+  .btn-mini svg { width: 14px; height: 14px; }
+
+  .hint { font-size: 12.5px; color: var(--faint); margin: 10px 2px 0; }
+
+  ul.todos { list-style: none; margin: 0; padding: 0; }
+  li.todo { display: flex; align-items: center; gap: 13px; padding: 13px 12px; border-radius: 10px; border: 1px solid transparent; cursor: pointer; }
+  li.todo + li.todo { border-top: 1px solid var(--border); border-radius: 0; }
+  li.todo.sel { border: 1px solid var(--pine); background: #f4f9f6; border-radius: 10px; }
+  li.todo.sel + li.todo, li.todo.sel { border-top-color: var(--pine); }
+
+  .check { flex: none; width: 22px; height: 22px; border-radius: 6px; border: 2px solid var(--border-strong); background: #fff; display: grid; place-items: center; color: #fff; transition: background .15s ease, border-color .15s ease; }
+  .drag-handle { flex: none; width: 24px; height: 32px; display: grid; place-items: center; color: var(--faint); cursor: grab; touch-action: none; margin-left: -4px; }
+  .drag-handle:hover { color: var(--muted); }
+  .drag-handle:active { cursor: grabbing; }
+  .drag-handle svg { width: 18px; height: 18px; }
+  li.todo.dragging { background: var(--surface); border: 1px solid var(--border-strong); border-radius: 10px; box-shadow: 0 10px 26px rgba(27,36,32,.18); position: relative; z-index: 5; }
+  li.todo.dragging + li.todo { border-top-color: transparent; }
+  .check svg { width: 13px; height: 13px; opacity: 0; transform: scale(.6); transition: .15s ease; }
+  li.todo.done .check, .check.static { background: var(--gold); border-color: var(--gold); }
+  li.todo.done .check svg, .check.static svg { opacity: 1; transform: none; }
+  .check.static { cursor: default; }
+
+  .todo .body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+  .todo .text { font-size: 15px; line-height: 1.4; }
+  .note-preview { display: flex; align-items: center; gap: 5px; min-width: 0; font-size: 12.5px; color: var(--faint); }
+  .note-preview svg { width: 12px; height: 12px; flex: none; }
+  .note-preview .pv-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  li.todo.done .note-preview, li.archived .note-preview { opacity: .8; }
+  li.todo.done .text, li.archived .text { color: var(--faint); text-decoration: line-through; text-decoration-color: var(--gold); }
+  .todo .meta { display: flex; align-items: center; gap: 8px; flex: none; }
+  .todo .when { font-size: 12px; color: var(--faint); white-space: nowrap; }
+  .badge-done { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--gold); background: var(--gold-soft); padding: 3px 8px; border-radius: 999px; }
+  .badge-daily { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--daily); background: var(--daily-soft); padding: 3px 8px; border-radius: 999px; display: inline-flex; align-items: center; gap: 4px; }
+  .badge-daily svg { width: 11px; height: 11px; }
+  .daily-toggle { flex: none; width: 30px; height: 30px; border-radius: 8px; background: transparent; border: 1px solid transparent; color: var(--faint); display: grid; place-items: center; }
+  .daily-toggle svg { width: 16px; height: 16px; }
+  .daily-toggle:hover { background: #fafbf9; color: var(--ink); border-color: var(--border); }
+  .daily-toggle.on { color: var(--daily); background: var(--daily-soft); border-color: #c7dde8; }
+  .todo .meta { flex-wrap: wrap; justify-content: flex-end; }
+
+  li.archived { cursor: default; }
+  .row-actions { display: flex; gap: 6px; flex: none; }
+  li.todo.noterow { cursor: default; }
+  .btn-row.archive { color: var(--gold); border-color: #ecd9a6; }
+  .btn-row.archive:hover { background: var(--gold-soft); color: var(--gold); }
+  .btn-row { padding: 6px 12px; font-size: 12.5px; font-weight: 600; border-radius: 999px; background: transparent; border: 1px solid var(--border-strong); color: var(--muted); }
+  .btn-row:hover { background: #fafbf9; color: var(--ink); }
+  .btn-row.relist { color: var(--pine); border-color: #bcd2c9; }
+  .btn-row.relist:hover { background: #eef5f1; }
+  .btn-row.danger { color: var(--clay); border-color: #e6c2b9; }
+  .btn-row.danger:hover { background: var(--clay-soft); }
+
+  .empty { text-align: center; color: var(--faint); padding: 28px 10px; font-size: 14px; }
+  .empty svg { width: 28px; height: 28px; opacity: .5; margin-bottom: 8px; }
+
+  .danger-zone { text-align: center; margin-top: 6px; }
+  .btn-danger-ghost { display: inline-flex; align-items: center; gap: 7px; padding: 10px 18px; font-size: 13.5px; font-weight: 600; color: var(--clay); background: transparent; border: 1px solid #e6c2b9; border-radius: 999px; }
+  .btn-danger-ghost:hover { background: var(--clay-soft); }
+  .btn-danger-ghost svg { width: 15px; height: 15px; }
+
+  /* ---------- Notes ---------- */
+  .note-btn { flex: none; width: 30px; height: 30px; border-radius: 8px; background: transparent; border: 1px solid transparent; color: var(--faint); display: grid; place-items: center; }
+  .note-btn svg { width: 16px; height: 16px; }
+  .note-btn:hover { background: #fafbf9; color: var(--ink); border-color: var(--border); }
+  .note-btn.has { color: var(--pine); }
+  .note-context { font-size: 14px; color: var(--muted); margin: 0 0 4px; }
+  .editor-toolbar { display: flex; flex-wrap: wrap; gap: 4px; padding: 8px; border: 1px solid var(--border-strong); border-bottom: none; border-radius: 10px 10px 0 0; background: #fbfcfa; }
+  .tb-btn { width: 34px; height: 32px; border-radius: 7px; background: transparent; border: 1px solid transparent; color: var(--muted); display: grid; place-items: center; font-family: "Bricolage Grotesque", serif; font-size: 15px; }
+  .tb-btn:hover { background: #eef1ec; color: var(--ink); }
+  .tb-btn b { font-weight: 700; }
+  .tb-btn i { font-style: italic; }
+  .tb-btn u { text-decoration: underline; }
+  .tb-btn s { text-decoration: line-through; }
+  .tb-btn svg { width: 16px; height: 16px; }
+  .tb-sep { width: 1px; align-self: stretch; background: var(--border); margin: 2px 4px; }
+  .editor {
+    min-height: 300px; padding: 16px 18px; border: 1px solid var(--border-strong); border-radius: 0 0 10px 10px;
+    background: var(--surface); font-size: 15px; line-height: 1.6; color: var(--ink);
+    white-space: pre-wrap; word-wrap: break-word; overflow-wrap: anywhere; tab-size: 4; outline: none;
+  }
+  .editor:focus { border-color: var(--pine); box-shadow: 0 0 0 3px rgba(46,90,78,.12); }
+  .editor:empty:before { content: attr(data-placeholder); color: var(--faint); pointer-events: none; }
+  .editor ul, .editor ol { margin: 6px 0; padding-left: 24px; }
+  .editor p { margin: 0 0 8px; }
+  .note-saved { font-size: 12.5px; color: var(--faint); margin: 10px 2px 0; }
+  .note-footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; }
+  .note-footer .note-saved { margin: 0; }
+  .note-footer .btn-solid { flex: none; }
+
+  /* ---------- Modal ---------- */
+  .modal-overlay { position: fixed; inset: 0; z-index: 200; display: none; align-items: center; justify-content: center; padding: 20px; background: rgba(27,36,32,.42); animation: fade .15s ease both; }
+  .modal-overlay.open { display: flex; }
+  @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+  .modal { width: 100%; max-width: 420px; background: var(--surface); border-radius: 16px; padding: 26px; box-shadow: 0 20px 60px rgba(0,0,0,.3); animation: rise .2s ease both; }
+  .modal h3 { font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 21px; margin: 0 0 6px; }
+  .modal-sub { color: var(--muted); font-size: 14px; margin: 0 0 18px; line-height: 1.45; }
+  .modal label { display: block; font-size: 13px; font-weight: 600; color: var(--ink); margin: 0 0 6px; }
+  .modal label + input { margin-bottom: 16px; }
+  .modal input { width: 100%; font-family: inherit; font-size: 15px; color: var(--ink); padding: 11px 13px; border: 1px solid var(--border-strong); border-radius: 10px; background: #fcfdfb; }
+  .modal input:focus { outline: none; border-color: var(--pine); box-shadow: 0 0 0 3px rgba(46,90,78,.12); }
+  .modal-error { color: var(--clay); font-size: 13px; min-height: 18px; margin: 0 0 14px; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
+  .modal-actions .btn-ghost, .modal-actions .btn-solid { border-radius: 999px; }
+  .type-seg { display: flex; gap: 10px; margin-bottom: 16px; }
+  .type-opt { flex: 1; text-align: left; padding: 12px 14px; border-radius: 11px; background: #fcfdfb; border: 1.5px solid var(--border-strong); display: flex; flex-direction: column; gap: 3px; }
+  .type-opt:hover { border-color: var(--faint); }
+  .type-opt.sel { border-color: var(--pine); background: #eef5f1; box-shadow: 0 0 0 3px rgba(46,90,78,.10); }
+  .type-opt .to-t { font-family: "Bricolage Grotesque", sans-serif; font-weight: 600; font-size: 15px; color: var(--ink); }
+  .type-opt .to-s { font-size: 12px; color: var(--muted); line-height: 1.35; }
+
+  /* Toast */
+  .toast { position: fixed; left: 50%; bottom: 26px; transform: translate(-50%, 20px); background: var(--ink); color: #fff; padding: 11px 18px; border-radius: 999px; font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,.25); opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease; z-index: 300; }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  @media (max-width: 560px) {
+    .home h1 { font-size: 34px; }
+    .composer { flex-wrap: wrap; }
+    .composer input[type="text"] { flex: 1 1 100%; }
+    .stat-row { flex-direction: column; }
+    main { padding-top: 28px; }
+    li.archived { flex-wrap: wrap; }
+    li.archived .row-actions { margin-left: 35px; }
+    li.todo.noterow { flex-wrap: wrap; }
+    li.todo.noterow .row-actions { margin-left: auto; }
+    .type-seg { flex-direction: column; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+
+  /* ---------- Dark theme fixes for hardcoded light tints ---------- */
+  html[data-theme="dark"] header.bar { background: rgba(20,23,26,.82); }
+  html[data-theme="dark"] .chip:hover,
+  html[data-theme="dark"] .btn-ghost:hover:not(:disabled),
+  html[data-theme="dark"] .note-btn:hover,
+  html[data-theme="dark"] .daily-toggle:hover,
+  html[data-theme="dark"] .btn-row:hover { background: #262b30; }
+  html[data-theme="dark"] .composer input[type="text"],
+  html[data-theme="dark"] .modal input,
+  html[data-theme="dark"] .type-opt,
+  html[data-theme="dark"] .check,
+  html[data-theme="dark"] .editor-toolbar { background: #181c20; }
+  html[data-theme="dark"] .tile.add:hover,
+  html[data-theme="dark"] li.todo.sel,
+  html[data-theme="dark"] .type-opt.sel,
+  html[data-theme="dark"] .btn-row.relist:hover { background: #1d2f29; }
+  html[data-theme="dark"] .tb-btn:hover { background: #262b30; }
+  html[data-theme="dark"] .btn-mini { border-color: #4a4222; }
+  html[data-theme="dark"] .btn-mini:hover:not(:disabled) { background: #3a3318; }
+  html[data-theme="dark"] .daily-toggle.on { border-color: #2f4854; }
+  html[data-theme="dark"] .btn-row.archive { border-color: #4a4222; }
+  html[data-theme="dark"] .toast { background: #2b3036; color: #e8eae6; }
+
+  /* ---------- JSON Tool view ---------- */
+  .hidden { display: none !important; }
+  .jt-back-row { margin-bottom: 20px; }
+  .jt-back-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 8px 16px 8px 10px; border-radius: 999px;
+    background: var(--surface); color: var(--muted);
+    border: 1px solid var(--border-strong); font-size: 14px; font-weight: 500;
+    box-shadow: var(--shadow);
+  }
+  .jt-back-btn:hover { background: var(--bg); color: var(--ink); }
+  .jt-back-btn svg { width: 17px; height: 17px; }
+  .jt-sub { font-size: 14.5px; color: var(--muted); margin: 0 0 24px; }
+  .jt-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 22px 24px; margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+  .jt-card-label {
+    font-size: 11px; font-weight: 600; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--faint); margin: 0 0 14px;
+  }
+  .jt-upload-area {
+    border: 2px dashed var(--border-strong); border-radius: 12px;
+    padding: 36px 24px; text-align: center; cursor: pointer;
+    transition: border-color .2s, background .2s; color: var(--ink);
+  }
+  .jt-upload-area:hover, .jt-upload-area.drag-over {
+    border-color: var(--pine); background: rgba(46,90,78,.06);
+  }
+  .jt-upload-icon { font-size: 32px; margin-bottom: 10px; }
+  .jt-upload-area p { color: var(--muted); font-size: 13.5px; margin-top: 5px; }
+  .jt-file-info {
+    display: flex; align-items: center; gap: 10px;
+    padding: 11px 14px; background: var(--bg); border-radius: 10px;
+    font-size: 13.5px; margin-top: 12px; border: 1px solid var(--border);
+  }
+  .jt-file-name { font-weight: 600; color: var(--ink); }
+  .jt-file-size { color: var(--muted); }
+  .jt-preview-box {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; font-family: 'SF Mono', 'Fira Code', monospace;
+    font-size: 12px; line-height: 1.6; max-height: 300px; overflow: auto;
+    white-space: pre; color: var(--ink); margin: 0;
+  }
+  .jt-stats { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
+  .jt-stat {
+    background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+    padding: 10px 18px; flex: 1; min-width: 110px;
+  }
+  .jt-stat-label { font-size: 11.5px; color: var(--muted); margin-bottom: 2px; }
+  .jt-stat-value { font-family: "Bricolage Grotesque", sans-serif; font-size: 22px; font-weight: 700; color: var(--ink); }
+  .jt-cols-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 16px; }
+  .jt-col-tag {
+    background: rgba(46,90,78,.10); color: var(--pine); border-radius: 6px;
+    padding: 4px 10px; font-size: 12px; font-family: 'SF Mono', 'Fira Code', monospace;
+  }
+  .jt-status {
+    padding: 11px 14px; border-radius: 10px; font-size: 13.5px;
+    font-weight: 500; margin-bottom: 14px;
+  }
+  .jt-status.error { background: var(--clay-soft); color: var(--clay); }
+  .jt-status.success { background: rgba(46,90,78,.10); color: var(--pine-dark); }
+  html[data-theme="dark"] .jt-status.success { color: var(--pine); }
+  .jt-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 4px; }
+
+  /* JSON Tools hub menu */
+  .jt-menu { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; margin-top: 6px; }
+  .jt-tile {
+    display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+    text-align: left; padding: 24px; border-radius: var(--radius);
+    background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow);
+    cursor: pointer; transition: border-color .15s, transform .1s, box-shadow .15s;
+  }
+  .jt-tile:hover { border-color: var(--pine); transform: translateY(-2px); }
+  .jt-tile-ic { width: 44px; height: 44px; border-radius: 12px; display: grid; place-items: center; background: rgba(46,90,78,.10); color: var(--pine); }
+  html[data-theme="dark"] .jt-tile-ic { background: rgba(107,191,163,.14); }
+  .jt-tile-ic svg { width: 24px; height: 24px; }
+  .jt-tile h3 { font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 17px; margin: 0; color: var(--ink); }
+  .jt-tile p { font-size: 13.5px; color: var(--muted); margin: 0; line-height: 1.5; }
+
+  /* Stitch view two-up grid */
+  .jt-stitch-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin-bottom: 16px; }
+  .jt-stitch-grid .jt-card { margin-bottom: 0; }
+
+  .nav-item#navJsonTool.active { background: var(--pine); color: #fff; }
+  .nav-item#navJsonTool.active .nav-ic svg { stroke: #fff; }
+</style>
+</head>
+<body>
+
+<div class="layout" id="layout">
+  <div class="scrim" id="scrim"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="side-head">
+      <span class="brand"><span class="mark"></span> <span class="brand-txt">Busy Bee 🐝</span></span>
+      <button class="icon-btn" id="collapseBtn" title="Collapse" aria-label="Collapse sidebar">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+    </div>
+    <nav class="side-nav">
+      <button class="nav-item" id="navOverview" data-nav="overview">
+        <span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 11 9-8 9 8"/><path d="M5 10v9a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-9"/><path d="M9 21v-6h6v6"/></svg></span>
+        <span class="nav-label">Overview</span>
+      </button>
+      <div class="nav-cap"><span>Lists</span></div>
+      <div id="navLists"></div>
+      <button class="nav-item add" id="navAddList">
+        <span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg></span>
+        <span class="nav-label">New list</span>
+      </button>
+    </nav>
+    <div class="side-foot">
+      <button class="nav-item" id="navJsonTool">
+        <span class="nav-ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 3h9l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M8 13h.01"/><path d="M12 13h4"/><path d="M8 17h.01"/><path d="M12 17h4"/></svg>
+        </span>
+        <span class="nav-label">JSON Tool</span>
+      </button>
+      <button class="nav-item" id="themeBtn"><span class="nav-ic" id="themeIc"></span><span class="nav-label" id="themeLabel">Dark mode</span></button>
+      <button class="nav-item" id="openBtn"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 3h9l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M12 18v-6"/><path d="m9 15 3-3 3 3"/></svg></span><span class="nav-label">Open file</span></button>
+      <button class="nav-item" id="saveBtn"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M8 3v5h7"/><path d="M12 17v-5"/><path d="m9 14 3 3 3-3"/></svg></span><span class="nav-label">Save backup</span></button>
+      <button class="nav-item" id="csvBtn"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M14 3v5h5"/><path d="M8 13h8"/><path d="M8 17h8"/><path d="M12 13v8"/></svg></span><span class="nav-label">Export CSV</span></button>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button class="icon-btn menu" id="menuBtn" aria-label="Open menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M3 12h18"/><path d="M3 18h18"/></svg>
+      </button>
+      <div class="top-date" id="topDate"></div>
+      <div class="top-search">
+        <svg class="search-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input id="searchInput" type="search" placeholder="Search entries…" autocomplete="off" />
+        <button class="search-clear" id="searchClear" aria-label="Clear search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="content">
+      <input type="file" id="fileInput" accept=".json,.csv,application/json,text/csv" style="display:none" />
+
+      <!-- OVERVIEW (default landing) -->
+      <section class="view active" id="overviewView">
+        <h1 class="page-title">Overview</h1>
+        <p class="session-note">Heads-up: your data lives only in this tab. Refreshing or closing it clears everything — use <b>Save backup</b> to keep a JSON file.</p>
+        <div id="overviewCards"></div>
+      </section>
+
+      <!-- LIST (reused for every list) -->
+      <section class="view" id="listView">
+        <h2 class="section-head"><span id="listTitle"></span> <button class="title-edit" id="renameBtn" title="Rename list" aria-label="Rename list"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg></button> <span class="tag" id="listTag"></span> <span class="head-lock" id="headLock" style="display:none" title="Password protected"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></span></h2>
+        <p class="section-sub" id="listSub"></p>
+
+        <div class="panel">
+          <div class="panel-head"><h2 id="addPanelTitle">Add a todo</h2></div>
+          <div class="composer">
+            <input type="text" id="todoInput" placeholder="Write a short description…" maxlength="200" />
+            <button class="btn-solid" id="addBtn">Add</button>
+            <button class="btn-ghost" id="deleteBtn" disabled>Delete</button>
+          </div>
+          <p class="hint" id="deleteHint">Tip: each row has its own delete button. You can also tap a todo to select it, then Delete.</p>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head">
+            <h2>List <span class="count" id="listCount">0</span></h2>
+            <button class="btn-mini" id="archiveBtn" disabled>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8"/><path d="M2 4h20v4H2z"/><path d="M10 12h4"/></svg>
+              <span class="archive-label">Archive done</span>
+            </button>
+          </div>
+          <ul class="todos" id="todoList"></ul>
+          <div class="empty" id="emptyState">
+            <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg></div>
+            Nothing here yet. Add your first todo above.
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-head"><h2>Archive <span class="count" id="archiveCount">0</span></h2></div>
+          <ul class="todos" id="archiveList"></ul>
+          <div class="empty" id="archiveEmpty">
+            <div><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8v11a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8"/><path d="M2 4h20v4H2z"/><path d="M10 12h4"/></svg></div>
+            Completed todos you archive will be filed here.
+          </div>
+        </div>
+
+        <div class="danger-zone" id="listTools">
+          <button class="btn-danger-ghost" id="lockBtn" style="display:none;color:var(--pine);border-color:#bcd2c9">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Protect with password
+          </button>
+          <button class="btn-danger-ghost" id="removePwBtn" style="display:none;color:var(--pine);border-color:#bcd2c9">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 9.9-1"/></svg>
+            Remove password
+          </button>
+          <button class="btn-danger-ghost" id="deleteListBtn" style="display:none">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1L5 6"/></svg>
+            Delete this list
+          </button>
+        </div>
+      </section>
+
+      <!-- NOTE (reused for every item) -->
+      <section class="view" id="noteView">
+        <h2 class="section-head">Notes</h2>
+        <p class="note-context">For: <b id="noteItemText"></b></p>
+        <p class="section-sub">Jot down anything extra. Newlines, tabs, and formatting are kept.</p>
+
+        <div class="panel" style="padding:0;overflow:hidden">
+          <div class="editor-toolbar" id="editorToolbar">
+            <button class="tb-btn" data-cmd="bold" title="Bold (Ctrl/⌘+B)"><b>B</b></button>
+            <button class="tb-btn" data-cmd="italic" title="Italic (Ctrl/⌘+I)"><i>I</i></button>
+            <button class="tb-btn" data-cmd="underline" title="Underline (Ctrl/⌘+U)"><u>U</u></button>
+            <button class="tb-btn" data-cmd="strikeThrough" title="Strikethrough"><s>S</s></button>
+            <span class="tb-sep"></span>
+            <button class="tb-btn" data-cmd="insertUnorderedList" title="Bullet list">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>
+            </button>
+            <button class="tb-btn" data-cmd="insertOrderedList" title="Numbered list">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 6h11"/><path d="M10 12h11"/><path d="M10 18h11"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M6 18H4c0-1 2-2 2-3s-1-1.5-2-1"/></svg>
+            </button>
+            <span class="tb-sep"></span>
+            <button class="tb-btn" data-cmd="removeFormat" title="Clear formatting">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7V4h16v3"/><path d="M5 20h6"/><path d="M13 4 8 20"/><path d="m15 15 6 6"/><path d="m21 15-6 6"/></svg>
+            </button>
+          </div>
+          <div class="editor" id="noteEditor" contenteditable="true" role="textbox" aria-multiline="true" data-placeholder="Write your notes here…"></div>
+        </div>
+        <div class="note-footer">
+          <p class="note-saved" id="noteSaved">Saved automatically as you type.</p>
+          <button class="btn-solid" id="noteDoneBtn">Done</button>
+        </div>
+      </section>
+
+      <div id="searchResults" class="results" style="display:none"></div>
+
+      <!-- JSON TOOL VIEW -->
+      <section class="view" id="jsonToolView">
+        <div class="jt-back-row">
+          <button class="jt-back-btn" id="jsonToolBackBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            Home
+          </button>
+        </div>
+
+        <h1 class="page-title" style="margin-bottom:4px;">JSON Tools</h1>
+        <p class="jt-sub">Pick a tool to get started.</p>
+
+        <div class="jt-menu">
+          <button class="jt-tile" id="jtGoCsv">
+            <span class="jt-tile-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3h11l3 3v13a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M14 3v5h5"/><path d="M8 13h8"/><path d="M8 17h8"/><path d="M12 13v8"/></svg></span>
+            <h3>JSON to CSV</h3>
+            <p>Flatten a nested JSON export (contacts, status, consent) into a clean CSV with DD.MM.YYYY dates.</p>
+          </button>
+          <button class="jt-tile" id="jtGoStitch">
+            <span class="jt-tile-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 8 3 12l4 4"/><path d="M17 8l4 4-4 4"/><path d="M14 4 10 20"/></svg></span>
+            <h3>Stitch JSON</h3>
+            <p>Deep-merge two JSON files into one, key by key. Arrays are joined; on a direct conflict the second file wins.</p>
+          </button>
+        </div>
+      </section>
+
+      <!-- JSON → CSV converter -->
+      <section class="view" id="jsonCsvView">
+        <div class="jt-back-row">
+          <button class="jt-back-btn" id="jsonCsvBackBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            JSON Tools
+          </button>
+        </div>
+
+        <h1 class="page-title" style="margin-bottom:4px;">JSON → CSV</h1>
+        <p class="jt-sub">Flattens nested JSON exports (contacts, status, consent) into a clean CSV with DD.MM.YYYY dates.</p>
+
+        <!-- Upload card -->
+        <div class="jt-card">
+          <p class="jt-card-label">1 — Upload JSON</p>
+          <div class="jt-upload-area" id="jtUploadArea">
+            <div class="jt-upload-icon">📂</div>
+            <strong>Click to upload a JSON file</strong>
+            <p>or drag and drop it here</p>
+          </div>
+          <input type="file" id="jtFileInput" accept=".json,application/json" style="display:none">
+          <div class="jt-file-info hidden" id="jtFileInfo">
+            <span>📄</span>
+            <span class="jt-file-name" id="jtFileName"></span>
+            <span class="jt-file-size" id="jtFileSize"></span>
+          </div>
+        </div>
+
+        <!-- Preview card -->
+        <div class="jt-card hidden" id="jtPreviewCard">
+          <p class="jt-card-label">2 — JSON Preview</p>
+          <pre class="jt-preview-box" id="jtPreviewBox"></pre>
+        </div>
+
+        <!-- Convert card -->
+        <div class="jt-card hidden" id="jtConvertCard">
+          <p class="jt-card-label">3 — Convert &amp; Export</p>
+          <div class="jt-stats hidden" id="jtStats">
+            <div class="jt-stat"><div class="jt-stat-label">Records</div><div class="jt-stat-value" id="jtStatRows">—</div></div>
+            <div class="jt-stat"><div class="jt-stat-label">Columns</div><div class="jt-stat-value" id="jtStatCols">—</div></div>
+          </div>
+          <div class="jt-cols-list hidden" id="jtColsList"></div>
+          <div class="jt-status hidden" id="jtStatus"></div>
+          <div class="jt-actions">
+            <button class="btn-solid jt-convert-btn" id="jtConvertBtn">&#8659; Convert to CSV</button>
+            <button class="btn-ghost" id="jtResetBtn">Reset</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Stitch two JSON files -->
+      <section class="view" id="jsonStitchView">
+        <div class="jt-back-row">
+          <button class="jt-back-btn" id="jsonStitchBackBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            JSON Tools
+          </button>
+        </div>
+
+        <h1 class="page-title" style="margin-bottom:4px;">Stitch JSON</h1>
+        <p class="jt-sub">Deep-merges two JSON files key by key into one. Nested objects merge recursively, arrays are joined end-to-end, and on a direct value conflict the second file wins.</p>
+
+        <div class="jt-stitch-grid">
+          <div class="jt-card">
+            <p class="jt-card-label">File A</p>
+            <div class="jt-upload-area" id="stUploadA">
+              <div class="jt-upload-icon">📄</div>
+              <strong>Upload JSON A</strong>
+              <p>click or drop the first file</p>
+            </div>
+            <input type="file" id="stFileA" accept=".json,application/json" style="display:none">
+            <div class="jt-file-info hidden" id="stInfoA">
+              <span>📄</span>
+              <span class="jt-file-name" id="stNameA"></span>
+              <span class="jt-file-size" id="stSizeA"></span>
+            </div>
+          </div>
+          <div class="jt-card">
+            <p class="jt-card-label">File B</p>
+            <div class="jt-upload-area" id="stUploadB">
+              <div class="jt-upload-icon">📄</div>
+              <strong>Upload JSON B</strong>
+              <p>click or drop the second file</p>
+            </div>
+            <input type="file" id="stFileB" accept=".json,application/json" style="display:none">
+            <div class="jt-file-info hidden" id="stInfoB">
+              <span>📄</span>
+              <span class="jt-file-name" id="stNameB"></span>
+              <span class="jt-file-size" id="stSizeB"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Merged preview -->
+        <div class="jt-card hidden" id="stPreviewCard">
+          <p class="jt-card-label">Merged preview</p>
+          <pre class="jt-preview-box" id="stPreviewBox"></pre>
+        </div>
+
+        <!-- Stitch + export -->
+        <div class="jt-card">
+          <p class="jt-card-label">Stitch &amp; Export</p>
+          <div class="jt-status hidden" id="stStatus"></div>
+          <div class="jt-actions">
+            <button class="btn-solid jt-convert-btn" id="stMergeBtn" disabled>&#8659; Stitch &amp; download</button>
+            <button class="btn-ghost" id="stResetBtn">Reset</button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <aside class="statsbar" id="statsbar">
+    <div class="stats-head">
+      <span class="stats-title">Counters</span>
+      <button class="icon-btn" id="statsCollapseBtn" title="Collapse counters" aria-label="Collapse counters">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+    </div>
+    <div class="stats-body">
+      <div class="stat-block">
+        <p class="stat-cap">Todos</p>
+        <div class="stat-line"><span>Total</span><b id="cTotal">0</b></div>
+        <div class="stat-line"><span>Completed</span><b id="cDone">0</b></div>
+        <div class="stat-line"><span>Still open</span><b id="cOpen">0</b></div>
+      </div>
+      <div class="stat-block" id="cNotesBlock">
+        <p class="stat-cap">Notes</p>
+        <div class="stat-line"><span>Total</span><b id="cNotesTotal">0</b></div>
+        <div class="stat-line"><span>Active</span><b id="cNotesActive">0</b></div>
+        <div class="stat-line"><span>Archived</span><b id="cNotesArchived">0</b></div>
+      </div>
+      <div class="stat-block">
+        <p class="stat-cap">Lists</p>
+        <div class="stat-line"><span>Total lists</span><b id="cLists">0</b></div>
+        <div class="stat-line"><span>Protected</span><b id="cLocked">0</b></div>
+      </div>
+      <p class="stats-note" id="statsLockedNote" style="display:none">Locked lists are counted only while unlocked.</p>
+    </div>
+    <button class="stats-rail" id="statsExpandBtn" title="Show counters" aria-label="Show counters">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      <span class="stats-rail-txt">Counters</span>
+    </button>
+  </aside>
+</div>
+
+<button class="fab" id="fab" title="New">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14"/><path d="M5 12h14"/></svg>
+  <span class="fab-label">New Entry</span>
+</button>
+
+<!-- New list modal -->
+<div class="modal-overlay" id="addModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="addTitle">
+    <h3 id="addTitle">New list</h3>
+    <p class="modal-sub">Pick a type and give it a title. A short description is optional. It appears in the left sidebar.</p>
+    <label>Type</label>
+    <div class="type-seg" id="typeSeg">
+      <button type="button" class="type-opt sel" data-type="todo">
+        <span class="to-t">Todo</span>
+        <span class="to-s">Tasks you check off &amp; can repeat daily</span>
+      </button>
+      <button type="button" class="type-opt" data-type="notes">
+        <span class="to-t">Notes</span>
+        <span class="to-s">Plain notes to archive &amp; relist</span>
+      </button>
+    </div>
+    <label for="newTitle">Title</label>
+    <input id="newTitle" type="text" maxlength="40" placeholder="e.g. Coaching" autocomplete="off" />
+    <label for="newDesc">Description <span style="color:var(--faint);font-weight:400">(optional)</span></label>
+    <input id="newDesc" type="text" maxlength="80" placeholder="e.g. Programming and athlete check-ins" autocomplete="off" />
+    <label class="pw-check" id="protectCheckWrap"><input type="checkbox" id="protectCheck" /> 🔒 Password-protect this list</label>
+    <div class="pw-fields" id="protectFields">
+      <input id="newPw" type="password" maxlength="128" placeholder="Password" autocomplete="new-password" />
+      <input id="newPw2" type="password" maxlength="128" placeholder="Confirm password" autocomplete="new-password" style="margin-top:10px" />
+      <p class="pw-warn">This list's contents are encrypted with your password. It is never stored anywhere — if you forget it, the contents cannot be recovered.</p>
+    </div>
+    <p class="modal-error" id="addError"></p>
+    <div class="modal-actions">
+      <button class="btn-ghost" data-close>Cancel</button>
+      <button class="btn-solid" id="createListBtn">Create list</button>
+    </div>
+  </div>
+</div>
+
+<!-- Delete list modal -->
+<div class="modal-overlay" id="delModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delTitle">
+    <h3 id="delTitle">Delete list</h3>
+    <p class="modal-sub">This permanently removes “<b id="delName"></b>” and everything in it, including its archive. This can’t be undone.</p>
+    <label for="delConfirm">Type <b>delete</b> to confirm</label>
+    <input id="delConfirm" type="text" placeholder="delete" autocomplete="off" />
+    <p class="modal-error" id="delError"></p>
+    <div class="modal-actions">
+      <button class="btn-ghost" data-close>Cancel</button>
+      <button class="btn-solid danger" id="confirmDeleteBtn" disabled>Delete list</button>
+    </div>
+  </div>
+</div>
+
+<!-- Unlock modal -->
+<div class="modal-overlay" id="unlockModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="unlockTitle">
+    <h3 id="unlockTitle">Locked list</h3>
+    <p class="modal-sub">Enter the password for “<b id="unlockName"></b>” to view it.</p>
+    <label for="unlockPw">Password</label>
+    <input id="unlockPw" type="password" maxlength="128" placeholder="Password" autocomplete="off" />
+    <p class="modal-error" id="unlockError"></p>
+    <div class="modal-actions">
+      <button class="btn-ghost" data-close>Cancel</button>
+      <button class="btn-solid" id="unlockBtn">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<!-- Set password modal (existing list) -->
+<div class="modal-overlay" id="pwModal">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="pwTitle">
+    <h3 id="pwTitle">Protect list</h3>
+    <p class="modal-sub">Encrypt the contents of “<b id="pwName"></b>” with a password.</p>
+    <label for="pwInput">Password</label>
+    <input id="pwInput" type="password" maxlength="128" placeholder="Password" autocomplete="new-password" />
+    <label for="pwInput2" style="margin-top:14px;display:block">Confirm password</label>
+    <input id="pwInput2" type="password" maxlength="128" placeholder="Confirm password" autocomplete="new-password" />
+    <p class="pw-warn" style="margin-top:14px">The password is never stored. If you forget it, this list's contents cannot be recovered.</p>
+    <p class="modal-error" id="pwError"></p>
+    <div class="modal-actions">
+      <button class="btn-ghost" data-close>Cancel</button>
+      <button class="btn-solid" id="pwSetBtn">Protect</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---------- Accent palette ----------
+  var ACCENTS = [
+    { fg: "#b07c12", soft: "#fbf3df" }, // gold
+    { fg: "#b34732", soft: "#fae7e2" }, // clay
+    { fg: "#2e5a4e", soft: "#e4efe9" }, // pine
+    { fg: "#3b4d8f", soft: "#e7eaf6" }, // indigo
+    { fg: "#7a3d6b", soft: "#f3e6ef" }, // plum
+    { fg: "#1f6e6a", soft: "#e0f0ef" }  // teal
+  ];
+
+  // ---------- State ----------
+  // DATA.lists: [{ id, title, desc, accent, builtin, items:[{id,text,done,created,completed,archived}] }]
+  var DATA = { lists: [] };
+  var selected = {};          // listId -> selected item id
+  var currentListId = null;
+  var STORE_KEY = "organizer.data.v4";
+  var LEGACY_V3 = "organizer.lists.v3";
+  var LEGACY_V2 = "organizer.lists.v2";
+  var LEGACY_V1 = "organizer.todos.v1";
+  var THEME_KEY = "busybee.theme";
+
+  // Password protection runtime (never persisted)
+  var sessionKey = {};   // listId -> data-key CryptoKey for this session
+  var unlocked = {};     // listId -> true once decrypted this session
+  var hasCrypto = !!(window.crypto && window.crypto.subtle);
+
+  // Super (master) password: only its SHA-256 hash is stored here — never the literal password.
+  // The override wraps each list's data key under a key derived from this hash, so the master
+  // password can recover any (this-version) locked list. NOTE: since this hash ships in the
+  // file, the override is recoverable by anyone with the source — it's a convenience/recovery
+  // key, not a secret guarantee against someone who has your exported file.
+  var SUPER_HASH = "gTqLJffmV0finMlvDCvCcCcpNHSlc2Ss6hLCwlUghjs=";
+
+  // ---------- Crypto (PBKDF2 + AES-GCM via Web Crypto) ----------
+  function b64enc(buf) { var b = new Uint8Array(buf), s = ""; for (var i = 0; i < b.length; i++) s += String.fromCharCode(b[i]); return btoa(s); }
+  function b64dec(str) { var bin = atob(str), a = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i); return a; }
+  function randB64(n) { return b64enc(crypto.getRandomValues(new Uint8Array(n)).buffer); }
+  function deriveKey(password, saltB64) {
+    var enc = new TextEncoder();
+    return crypto.subtle.importKey("raw", enc.encode(password), "PBKDF2", false, ["deriveKey"]).then(function (base) {
+      return crypto.subtle.deriveKey(
+        { name: "PBKDF2", salt: b64dec(saltB64), iterations: 150000, hash: "SHA-256" },
+        base, { name: "AES-GCM", length: 256 }, false, ["encrypt", "decrypt"]);
+    });
+  }
+  function sha256b64(str) {
+    return crypto.subtle.digest("SHA-256", new TextEncoder().encode(str)).then(function (h) { return b64enc(h); });
+  }
+  var _superKey = null;
+  function getSuperKey() {
+    if (_superKey) return _superKey;
+    _superKey = crypto.subtle.importKey("raw", b64dec(SUPER_HASH), { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
+    return _superKey;
+  }
+  function importDataKey(rawBytes) {
+    return crypto.subtle.importKey("raw", new Uint8Array(rawBytes), { name: "AES-GCM" }, false, ["encrypt", "decrypt"]);
+  }
+  function encBytes(key, bytes) {
+    var iv = crypto.getRandomValues(new Uint8Array(12));
+    return crypto.subtle.encrypt({ name: "AES-GCM", iv: iv }, key, bytes).then(function (ct) {
+      return { iv: b64enc(iv.buffer), ct: b64enc(ct) };
+    });
+  }
+  function decBytes(key, ivB64, ctB64) {
+    return crypto.subtle.decrypt({ name: "AES-GCM", iv: b64dec(ivB64) }, key, b64dec(ctB64));
+  }
+  function encryptItems(key, items) {
+    return encBytes(key, new TextEncoder().encode(JSON.stringify(items)));
+  }
+  function decryptItems(key, ivB64, ctB64) {
+    return decBytes(key, ivB64, ctB64).then(function (pt) { return JSON.parse(new TextDecoder().decode(pt)); });
+  }
+
+  // ---------- Helpers ----------
+  function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
+  function $(id) { return document.getElementById(id); }
+  function getList(id) { for (var i = 0; i < DATA.lists.length; i++) if (DATA.lists[i].id === id) return DATA.lists[i]; return null; }
+  function titleExists(title) {
+    var n = title.trim().toLowerCase();
+    return DATA.lists.some(function (l) { return l.title.trim().toLowerCase() === n; });
+  }
+  function fmtWhen(iso) {
+    if (!iso) return "";
+    try { return new Date(iso).toLocaleDateString(undefined, { month: "short", day: "numeric" }); }
+    catch (e) { return ""; }
+  }
+  function pad2(n) { return (n < 10 ? "0" : "") + n; }
+  function dayKeyOf(d) { return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
+  function todayKey() { return dayKeyOf(new Date()); }
+  function localDayKey(iso) { if (!iso) return ""; try { return dayKeyOf(new Date(iso)); } catch (e) { return ""; } }
+
+  // Reset any daily-recurring item that was completed on a previous local day.
+  function resetDailies() {
+    var tk = todayKey(), changed = false;
+    DATA.lists.forEach(function (l) {
+      l.items.forEach(function (t) {
+        if (t.daily && t.done && !t.archived && localDayKey(t.completed) !== tk) {
+          t.done = false; t.completed = ""; changed = true;
+        }
+      });
+    });
+    if (changed) save();
+    return changed;
+  }
+
+  // ---------- Notes helpers ----------
+  function notesHasContent(html) {
+    if (!html) return false;
+    var t = String(html).replace(/<[^>]*>/g, "").replace(/&nbsp;/gi, " ").replace(/&amp;/gi, "&").trim();
+    return t.length > 0;
+  }
+  // Plain-text, single-line preview of a note (entities decoded, whitespace collapsed).
+  function notesPreview(html) {
+    if (!html) return "";
+    var d = document.createElement("div");
+    d.innerHTML = sanitizeNotes(String(html));
+    return (d.textContent || "").replace(/\s+/g, " ").trim();
+  }
+  // Whitelist sanitizer for note HTML (guards content arriving via imported CSVs).
+  var ALLOWED_TAGS = { B:1, STRONG:1, I:1, EM:1, U:1, S:1, STRIKE:1, BR:1, DIV:1, P:1, UL:1, OL:1, LI:1, SPAN:1 };
+  function sanitizeNotes(html) {
+    var box = document.createElement("div");
+    box.innerHTML = String(html || "");
+    (function walk(node) {
+      var children = Array.prototype.slice.call(node.childNodes);
+      children.forEach(function (child) {
+        if (child.nodeType === 1) { // element
+          if (!ALLOWED_TAGS[child.tagName]) {
+            // replace disallowed element with its text content
+            var txt = document.createTextNode(child.textContent || "");
+            node.replaceChild(txt, child);
+            return;
+          }
+          // strip all attributes (no styles, no handlers, no hrefs)
+          for (var i = child.attributes.length - 1; i >= 0; i--) child.removeAttribute(child.attributes[i].name);
+          walk(child);
+        } else if (child.nodeType !== 3) { // not text -> drop (comments etc.)
+          node.removeChild(child);
+        }
+      });
+    })(box);
+    return box.innerHTML;
+  }
+
+  function seedBuiltins() {
+    return [
+      { id: "daily", title: "Daily Work", desc: "Add todos, track progress, mark them done", accent: 0, builtin: true, type: "todo", items: [] },
+      { id: "must", title: "Must Do", desc: "Your non-negotiables — same list, higher priority", accent: 1, builtin: true, type: "todo", items: [] }
+    ];
+  }
+  function normItems(arr) {
+    return (Array.isArray(arr) ? arr : []).map(function (t) {
+      return {
+        id: t.id || uid(),
+        text: t.text || "",
+        done: !!t.done,
+        created: t.created || new Date().toISOString(),
+        completed: t.completed || (t.done ? (t.created || "") : ""),
+        archived: !!t.archived,
+        daily: !!t.daily,
+        notes: typeof t.notes === "string" ? t.notes : ""
+      };
+    });
+  }
+  function ensureBuiltins() {
+    if (!getList("daily")) DATA.lists.unshift(seedBuiltins()[0]);
+    if (!getList("must")) {
+      var idx = getList("daily") ? 1 : 0;
+      DATA.lists.splice(idx, 0, seedBuiltins()[1]);
+    }
+  }
+  // Normalize a raw lists array (from storage or an imported JSON file).
+  function hydrateLists(arr) {
+    return (Array.isArray(arr) ? arr : []).map(function (l, i) {
+      var bi = l.id === "daily" || l.id === "must";
+      return {
+        id: l.id || ("l_" + uid()),
+        title: l.title || ("List " + (i + 1)),
+        desc: l.desc || "",
+        accent: typeof l.accent === "number" ? l.accent : (i % ACCENTS.length),
+        builtin: !!l.builtin,
+        type: (l.type === "notes" && !bi) ? "notes" : "todo",
+        locked: !!l.locked,
+        salt: l.salt || "",
+        ivD: l.ivD || "", ctD: l.ctD || "",   // items encrypted under the data key
+        ivU: l.ivU || "", ctU: l.ctU || "",   // data key wrapped under the list password
+        ivS: l.ivS || "", ctS: l.ctS || "",   // data key wrapped under the master password
+        iv: l.iv || "", ct: l.ct || "",       // legacy single-key format (pre data-key)
+        items: normItems(l.items)
+      };
+    });
+  }
+
+  // ---------- Persistence: NONE. Everything lives in memory only. ----------
+  // A page refresh erases all data. The JSON file (Save/Open) is the only way to keep it.
+  var dirty = false; // true when there are in-memory changes not yet written to a JSON file
+
+  // Build a serializable snapshot; locked lists are encrypted (never plaintext).
+  function buildSnapshot() {
+    var chain = Promise.resolve();
+    var out = [];
+    DATA.lists.forEach(function (l) {
+      chain = chain.then(function () {
+        var base = { id: l.id, title: l.title, desc: l.desc, accent: l.accent, builtin: l.builtin, type: l.type };
+        if (l.locked) {
+          base.locked = true; base.salt = l.salt; base.items = [];
+          base.ivU = l.ivU; base.ctU = l.ctU; base.ivS = l.ivS; base.ctS = l.ctS;
+          if (l.iv) { base.iv = l.iv; base.ct = l.ct; } // preserve legacy blob if present
+          if (unlocked[l.id] && sessionKey[l.id]) {
+            return encryptItems(sessionKey[l.id], l.items).then(function (e) {
+              base.ivD = e.iv; base.ctD = e.ct;
+              l.ivD = e.iv; l.ctD = e.ct;   // keep in-memory copy current (for re-lock)
+              out.push(base);
+            });
+          }
+          base.ivD = l.ivD; base.ctD = l.ctD; out.push(base); return;
+        }
+        base.items = l.items; out.push(base);
+      });
+    });
+    return chain.then(function () { return { app: "Busy Bee", version: 5, savedAt: new Date().toISOString(), lists: out }; });
+  }
+  // No disk write — just flag that there's unsaved work for the refresh/close warning.
+  function save() { dirty = true; }
+
+  // Re-lock unlocked protected lists: re-encrypt their contents in memory, then wipe
+  // the decrypted items and key so opening asks for the password again.
+  function relockAll(done) {
+    var any = DATA.lists.some(function (l) { return l.locked && unlocked[l.id]; });
+    if (!any) { if (done) done(); return; }
+    buildSnapshot().then(function () { // updates each list's in-memory iv/ct
+      DATA.lists.forEach(function (l) {
+        if (l.locked && unlocked[l.id]) { l.items = []; delete unlocked[l.id]; delete sessionKey[l.id]; }
+      });
+      if (done) done();
+    });
+  }
+  // Start empty every session, and remove anything earlier versions left in localStorage.
+  function load() {
+    try {
+      [STORE_KEY, LEGACY_V3, LEGACY_V2, LEGACY_V1].forEach(function (k) {
+        try { localStorage.removeItem(k); } catch (e) {}
+      });
+    } catch (e) {}
+    DATA.lists = seedBuiltins();
+  }
+
+  var toastTimer;
+  function toast(msg) {
+    var t = $("toast"); t.textContent = msg; t.classList.add("show");
+    clearTimeout(toastTimer); toastTimer = setTimeout(function () { t.classList.remove("show"); }, 2200);
+  }
+
+  // ---------- CSV ----------
+  function csvEscape(v) { v = String(v == null ? "" : v); if (/[",\n\r]/.test(v)) return '"' + v.replace(/"/g, '""') + '"'; return v; }
+  function toCSV() {
+    var rows = [["id", "list", "list_type", "list_description", "description", "done", "created", "completed", "archived", "daily", "notes"]];
+    DATA.lists.forEach(function (l) {
+      if (l.locked) return; // never write protected content to a plaintext CSV
+      l.items.forEach(function (t) {
+        rows.push([t.id, l.title, l.type || "todo", l.desc, t.text, t.done ? "true" : "false", t.created, t.completed || "", t.archived ? "true" : "false", t.daily ? "true" : "false", t.notes || ""]);
+      });
+    });
+    return rows.map(function (r) { return r.map(csvEscape).join(","); }).join("\r\n");
+  }
+  function parseCSV(text) {
+    var rows = [], row = [], field = "", i = 0, inQ = false, c;
+    text = text.replace(/^\uFEFF/, "");
+    while (i < text.length) {
+      c = text[i];
+      if (inQ) {
+        if (c === '"') { if (text[i + 1] === '"') { field += '"'; i += 2; continue; } inQ = false; i++; continue; }
+        field += c; i++; continue;
+      }
+      if (c === '"') { inQ = true; i++; continue; }
+      if (c === ",") { row.push(field); field = ""; i++; continue; }
+      if (c === "\r") { i++; continue; }
+      if (c === "\n") { row.push(field); rows.push(row); row = []; field = ""; i++; continue; }
+      field += c; i++;
+    }
+    if (field.length || row.length) { row.push(field); rows.push(row); }
+    return rows.filter(function (r) { return r.length > 1 || (r.length === 1 && r[0] !== ""); });
+  }
+  function truthy(v) { return /^(true|1|yes|done)$/i.test((v || "").trim()); }
+
+  function importFromText(text) {
+    var rows = parseCSV(text);
+    if (!rows.length) { toast("That file looks empty."); return; }
+    var header = rows[0].map(function (h) { return h.trim().toLowerCase(); });
+    var hasHeader = header.indexOf("description") !== -1 || header.indexOf("id") !== -1;
+    var idi = header.indexOf("id"), li = header.indexOf("list"),
+        ldi = header.indexOf("list_description"), di = header.indexOf("description"),
+        dni = header.indexOf("done"), ci = header.indexOf("created"),
+        cmi = header.indexOf("completed"), ai = header.indexOf("archived"), dyi = header.indexOf("daily"), ni = header.indexOf("notes"),
+        lti = header.indexOf("list_type");
+    if (ldi === -1) ldi = header.indexOf("list_desc");
+    var start = hasHeader ? 1 : 0;
+
+    var next = seedBuiltins();
+    var nextAccent = 2;
+    function resolveList(val, descVal, typeVal) {
+      var key = (val || "").trim().toLowerCase();
+      if (key === "" || key === "daily" || key === "daily work") return next[0];
+      if (key === "must" || key === "must do") return next[1];
+      for (var j = 0; j < next.length; j++) if (next[j].title.trim().toLowerCase() === key) return next[j];
+      var d = (descVal || "").trim();
+      if (!d && ldi === -1) d = "Imported list"; // placeholder only when the file has no description column
+      var nl = { id: "l_" + uid(), title: (val || "Imported list").trim(), desc: d, accent: (nextAccent++) % ACCENTS.length, builtin: false, type: (typeVal === "notes" ? "notes" : "todo"), items: [] };
+      next.push(nl);
+      return nl;
+    }
+
+    var count = 0;
+    for (var r = start; r < rows.length; r++) {
+      var cells = rows[r], id, listVal, listType, listDesc, text2, done, created, completed, archived, daily, notes;
+      if (hasHeader) {
+        id = (idi !== -1 && cells[idi]) ? cells[idi] : uid();
+        listVal = li !== -1 ? cells[li] : "daily";
+        listType = lti !== -1 ? (cells[lti] || "").trim().toLowerCase() : "todo";
+        listDesc = ldi !== -1 ? cells[ldi] : "";
+        text2 = di !== -1 ? cells[di] : (cells[1] || "");
+        done = dni !== -1 ? truthy(cells[dni]) : false;
+        created = ci !== -1 ? (cells[ci] || "") : "";
+        completed = cmi !== -1 ? (cells[cmi] || "") : "";
+        archived = ai !== -1 ? truthy(cells[ai]) : false;
+        daily = dyi !== -1 ? truthy(cells[dyi]) : false;
+        notes = ni !== -1 ? (cells[ni] || "") : "";
+      } else {
+        if (cells.length >= 2) { id = cells[0] || uid(); text2 = cells[1]; done = truthy(cells[2]); created = cells[3] || ""; }
+        else { id = uid(); text2 = cells[0]; done = false; created = ""; }
+        listVal = "daily"; listType = "todo"; listDesc = ""; completed = ""; archived = false; daily = false; notes = "";
+      }
+      text2 = (text2 || "").trim();
+      if (!text2) continue;
+      var L = resolveList(listVal, listDesc, listType);
+      if (listDesc && L.desc === "Imported list" && (listDesc || "").trim()) L.desc = listDesc.trim();
+      if (L.type === "notes") {
+        done = false; daily = false; completed = "";   // notes have no done/recurring; archived stays as-is
+      } else {
+        if (done && !completed) completed = created || new Date().toISOString();
+        if (!done) { completed = ""; archived = false; }
+      }
+      L.items.push({ id: id, text: text2, done: done, created: created || new Date().toISOString(), completed: completed, archived: archived, daily: daily, notes: notes });
+      count++;
+    }
+
+    if (!count) { toast("No todos found in that file."); return; }
+    DATA.lists = next;
+    selected = {}; currentListId = null; unlocked = {}; sessionKey = {};
+    resetDailies();
+    dirty = false; renderHome(); renderCounters();
+    toast("Imported " + count + " todo" + (count === 1 ? "" : "s") + ".");
+  }
+
+  // ---------- JSON (primary, lossless) ----------
+  function toJSON() {
+    return buildSnapshot().then(function (snap) { return JSON.stringify(snap, null, 2); });
+  }
+  function importJSON(text) {
+    var data;
+    try { data = JSON.parse(text); } catch (e) { toast("That file isn't valid JSON."); return; }
+    var rawLists = Array.isArray(data) ? data : (data && Array.isArray(data.lists) ? data.lists : null);
+    if (!rawLists) { toast("Couldn't find any lists in that file."); return; }
+    DATA.lists = hydrateLists(rawLists);
+    ensureBuiltins();
+    selected = {}; currentListId = null; unlocked = {}; sessionKey = {};
+    resetDailies();
+    dirty = false; renderHome(); renderCounters();
+    var items = DATA.lists.reduce(function (a, l) { return a + l.items.length; }, 0);
+    toast("Loaded " + DATA.lists.length + " lists, " + items + " item" + (items === 1 ? "" : "s") + ".");
+  }
+  // Route an opened file by extension/content (.json -> JSON, otherwise CSV).
+  function importFile(name, text) {
+    var t = String(text || "").replace(/^\uFEFF/, "").trim();
+    var isJson = /\.json$/i.test(name || "") || t.charAt(0) === "{" || t.charAt(0) === "[";
+    if (isJson) importJSON(text); else importFromText(text);
+  }
+
+  function openFile() {
+    if (window.showOpenFilePicker) {
+      window.showOpenFilePicker({
+        types: [{ description: "Busy Bee backup or CSV", accept: { "application/json": [".json"], "text/csv": [".csv"] } }],
+        excludeAcceptAllOption: false, multiple: false
+      }).then(function (h) { return h[0].getFile(); })
+        .then(function (f) { return f.text().then(function (t) { importFile(f.name, t); }); })
+        .catch(function (e) { if (e && e.name === "AbortError") return; $("fileInput").click(); });
+    } else { $("fileInput").click(); }
+  }
+
+  function saveFile() {  // JSON backup
+    var name = "busy-bee-" + new Date().toISOString().slice(0, 10) + ".json";
+    toJSON().then(function (json) {
+      if (window.showSaveFilePicker) {
+        window.showSaveFilePicker({ suggestedName: name, types: [{ description: "JSON", accept: { "application/json": [".json"] } }] })
+          .then(function (h) { return h.createWritable(); })
+          .then(function (w) { return w.write(json).then(function () { return w.close(); }); })
+          .then(function () { dirty = false; toast("Saved " + name); })
+          .catch(function (e) { if (e && e.name === "AbortError") return; downloadBlob(json, name, "application/json"); dirty = false; });
+      } else { downloadBlob(json, name, "application/json"); dirty = false; }
+    });
+  }
+
+  function exportCSV() {  // spreadsheet-friendly snapshot
+    var csv = toCSV(); var name = "busy-bee-" + new Date().toISOString().slice(0, 10) + ".csv";
+    if (window.showSaveFilePicker) {
+      window.showSaveFilePicker({ suggestedName: name, types: [{ description: "CSV", accept: { "text/csv": [".csv"] } }] })
+        .then(function (h) { return h.createWritable(); })
+        .then(function (w) { return w.write(csv).then(function () { return w.close(); }); })
+        .then(function () { toast("Exported " + name); })
+        .catch(function (e) { if (e && e.name === "AbortError") return; downloadBlob(csv, name, "text/csv"); });
+    } else { downloadBlob(csv, name, "text/csv"); }
+  }
+
+  function downloadBlob(text, name, mime) {
+    var blob = new Blob([text], { type: mime + ";charset=utf-8;" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a"); a.href = url; a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    toast((/\.json$/.test(name) ? "Saved " : "Exported ") + name);
+  }
+
+  // ---------- Icons ----------
+  function iconFor(list) {
+    if (list.id === "daily")
+      return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3 8-8"/><path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9"/></svg>';
+    if (list.id === "must")
+      return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0Z"/></svg>';
+    if (list.type === "notes")
+      return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 3h9l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>';
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 6h10"/><path d="M11 12h10"/><path d="M11 18h10"/><path d="m3 6 1.5 1.5L7 5"/><path d="m3 12 1.5 1.5L7 11"/><path d="m3 18 1.5 1.5L7 17"/></svg>';
+  }
+  function tagLabel(list) { if (list.id === "daily") return "Routine"; if (list.id === "must") return "Priority"; return list.type === "notes" ? "Notes" : "List"; }
+
+  // ---------- Render: top date, sidebar, overview ----------
+  function updateDate() {
+    try {
+      var s = new Date().toLocaleDateString(undefined, { weekday: "long", month: "short", day: "numeric" });
+      $("topDate").textContent = s.toUpperCase();
+    } catch (e) { $("topDate").textContent = "TODAY"; }
+  }
+
+  function lockGlyph() {
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>';
+  }
+
+  function renderSidebar() {
+    var wrap = $("navLists"); wrap.innerHTML = "";
+    DATA.lists.forEach(function (l) {
+      var b = document.createElement("button");
+      b.className = "nav-item"; b.setAttribute("data-listid", l.id);
+      var ac = ACCENTS[l.accent % ACCENTS.length];
+      b.innerHTML =
+        '<span class="nav-ic" style="color:' + ac.fg + '">' + iconFor(l) + '</span>' +
+        '<span class="nav-label"></span>' +
+        (l.locked ? '<span class="nav-lock">' + lockGlyph() + '</span>' : '');
+      b.querySelector(".nav-label").textContent = l.title;
+      b.addEventListener("click", (function (list) {
+        return function () {
+          relockAll(function () {
+            if (list.locked && !unlocked[list.id]) openUnlockModal(list.id);
+            else openList(list.id);
+          });
+        };
+      })(l));
+      wrap.appendChild(b);
+    });
+    updateNavActive();
+  }
+
+  function updateNavActive() {
+    $("navOverview").classList.toggle("active", currentView === "overview");
+    var jt = document.getElementById("navJsonTool");
+    if (jt) jt.classList.toggle("active", currentView.indexOf("json") === 0);
+    var items = document.querySelectorAll("#navLists .nav-item");
+    Array.prototype.forEach.call(items, function (b) {
+      b.classList.toggle("active", currentView === "list" && b.getAttribute("data-listid") === currentListId);
+    });
+  }
+
+  // Overview shows the built-in lists (Daily Work + Must Do) by default.
+  function renderOverview() {
+    var box = $("overviewCards"); box.innerHTML = "";
+    var builtins = DATA.lists.filter(function (l) { return l.builtin; });
+    var custom   = DATA.lists.filter(function (l) { return !l.builtin; });
+    builtins.concat(custom).forEach(function (l) { box.appendChild(overviewCard(l)); });
+  }
+
+  function overviewCard(l) {
+    var ac = ACCENTS[l.accent % ACCENTS.length];
+    var card = document.createElement("div"); card.className = "ov-card";
+    var head = document.createElement("div"); head.className = "ov-card-head";
+    head.innerHTML = '<span class="ov-dot" style="background:' + ac.fg + '"></span><h3></h3>' +
+      (l.locked ? '<span class="nav-lock">' + lockGlyph() + '</span>' : '') +
+      '<span class="ov-open"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></span>';
+    head.querySelector("h3").textContent = l.title;
+    head.addEventListener("click", function () {
+      if (l.locked && !unlocked[l.id]) openUnlockModal(l.id); else openList(l.id);
+    });
+    card.appendChild(head);
+
+    if (l.locked && !unlocked[l.id]) {
+      var lk = document.createElement("div"); lk.className = "ov-locked";
+      lk.innerHTML = lockGlyph() + "<span>Password-protected — open it to view.</span>";
+      card.appendChild(lk);
+      return card;
+    }
+
+    var isNotes = l.type === "notes";
+    var active = l.items.filter(function (t) { return !t.archived; });
+    var cnt = document.createElement("p"); cnt.className = "ov-count";
+    if (isNotes) cnt.textContent = active.length + (active.length === 1 ? " note" : " notes");
+    else { var done = active.filter(function (t) { return t.done; }).length; cnt.textContent = done + " of " + active.length + " done"; }
+    card.appendChild(cnt);
+
+    if (!active.length) {
+      var em = document.createElement("div"); em.className = "ov-empty"; em.textContent = "Nothing here yet.";
+      card.appendChild(em);
+      return card;
+    }
+    var shown = active.slice(0, 8);
+    shown.forEach(function (t) {
+      var row = document.createElement("div"); row.className = "ov-row" + (!isNotes && t.done ? " done" : "");
+      if (!isNotes) row.appendChild(makeCheck(t.done, function () { toggleDone(l.id, t.id); }));
+      var txt = document.createElement("span"); txt.className = "ov-txt"; txt.textContent = t.text || "(untitled)";
+      row.appendChild(txt);
+      row.appendChild(rowDeleteBtn(l.id, t.id));
+      card.appendChild(row);
+    });
+    if (active.length > shown.length) {
+      var more = document.createElement("div"); more.className = "ov-more";
+      more.textContent = "+ " + (active.length - shown.length) + " more — open list";
+      more.addEventListener("click", function () { openList(l.id); });
+      card.appendChild(more);
+    }
+    return card;
+  }
+
+  function rowDeleteBtn(listId, itemId) {
+    var b = document.createElement("button"); b.className = "row-del"; b.setAttribute("title", "Delete"); b.setAttribute("aria-label", "Delete item");
+    b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1L5 6"/></svg>';
+    b.addEventListener("click", function (e) { e.stopPropagation(); deleteItem(listId, itemId); });
+    return b;
+  }
+
+  // ---------- Inline item editing ----------
+  var editingItemId = null;
+  function rowEditBtn(listId, itemId) {
+    var b = document.createElement("button"); b.className = "row-edit"; b.setAttribute("title", "Edit"); b.setAttribute("aria-label", "Edit item");
+    b.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>';
+    b.addEventListener("click", function (e) { e.stopPropagation(); beginEditItem(listId, itemId); });
+    return b;
+  }
+  function beginEditItem(listId, itemId) {
+    editingItemId = itemId;
+    renderList(getList(listId));
+  }
+  function commitEditItem(listId, itemId, val) {
+    if (editingItemId !== itemId) return; // already handled (Esc/Enter then blur)
+    editingItemId = null;
+    var l = getList(listId); var t = l && findItem(l, itemId);
+    var v = (val || "").trim();
+    if (t && v) { t.text = v; save(); }
+    renderList(getList(listId)); renderStats();
+  }
+  function buildEditRow(li, list, t) {
+    var handle = dragHandleEl(list.id, t.id, li);
+    var inp = document.createElement("input");
+    inp.type = "text"; inp.className = "item-edit"; inp.value = t.text; inp.maxLength = 200;
+    inp.addEventListener("click", function (e) { e.stopPropagation(); });
+    inp.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); commitEditItem(list.id, t.id, inp.value); }
+      else if (e.key === "Escape") { e.preventDefault(); editingItemId = null; renderList(getList(list.id)); }
+    });
+    inp.addEventListener("blur", function () { commitEditItem(list.id, t.id, inp.value); });
+    li.appendChild(handle); li.appendChild(inp);
+    setTimeout(function () { inp.focus(); inp.select(); }, 0);
+  }
+
+  // Kept name for all the existing call sites: refresh nav + overview + search.
+  function renderHome() {
+    updateDate();
+    renderSidebar();
+    if (currentView === "overview") renderOverview();
+    runSearch();
+  }
+
+  // ---------- Search (skips password-protected lists) ----------
+  function highlightHit(node) { /* placeholder for future */ }
+  function runSearch() {
+    var input = $("searchInput");
+    if (!input) return;
+    var q = input.value.trim().toLowerCase();
+    var results = $("searchResults"), clear = $("searchClear");
+    clear.style.display = q ? "flex" : "none";
+    if (!q) {
+      results.style.display = "none"; results.innerHTML = "";
+      // restore whichever view is current
+      $("overviewView").classList.toggle("active", currentView === "overview");
+      $("listView").classList.toggle("active", currentView === "list");
+      $("noteView").classList.toggle("active", currentView === "note");
+      return;
+    }
+    $("overviewView").classList.remove("active");
+    $("listView").classList.remove("active");
+    $("noteView").classList.remove("active");
+    results.style.display = "block";
+
+    var hits = [];
+    DATA.lists.forEach(function (l) {
+      if (l.locked) return; // ignore password-protected lists entirely
+      if (l.title.toLowerCase().indexOf(q) !== -1 || (l.desc || "").toLowerCase().indexOf(q) !== -1) {
+        hits.push({ kind: "list", list: l });
+      }
+      l.items.forEach(function (it) {
+        var inText = (it.text || "").toLowerCase().indexOf(q) !== -1;
+        var inNotes = !inText && notesPreview(it.notes || "").toLowerCase().indexOf(q) !== -1;
+        if (inText || inNotes) hits.push({ kind: "item", list: l, item: it, viaNotes: inNotes });
+      });
+    });
+    renderResults(hits);
+  }
+
+  function renderResults(hits) {
+    var box = $("searchResults");
+    box.innerHTML = "";
+    var head = document.createElement("p"); head.className = "results-head";
+    head.textContent = hits.length ? (hits.length + " result" + (hits.length === 1 ? "" : "s")) : "";
+    box.appendChild(head);
+
+    if (!hits.length) {
+      var empty = document.createElement("div"); empty.className = "results-empty";
+      empty.textContent = "No matches. (Password-protected lists aren't searched.)";
+      box.appendChild(empty);
+      return;
+    }
+
+    hits.forEach(function (h) {
+      var ac = ACCENTS[h.list.accent % ACCENTS.length];
+      var row = document.createElement("button");
+      row.className = "result" + (h.kind === "item" && h.item.done && !h.item.archived ? " done-hit" : "");
+      var ic = '<span class="r-ic" style="background:' + ac.soft + ';color:' + ac.fg + '">' +
+        (h.kind === "list" ? iconFor(h.list)
+          : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg>') + '</span>';
+      var title, ctx, tag;
+      if (h.kind === "list") {
+        title = h.list.title;
+        ctx = (h.list.type === "notes" ? "Notes list" : "Todo list") + (h.list.desc ? " · " + h.list.desc : "");
+        tag = "List";
+      } else {
+        title = h.item.text;
+        var bits = ["in " + h.list.title];
+        if (h.item.archived) bits.push("archived");
+        else if (h.item.done) bits.push("done");
+        if (h.item.daily) bits.push("daily");
+        if (h.viaNotes) bits.push("matched in notes");
+        ctx = bits.join(" · ");
+        tag = h.list.type === "notes" ? "Note" : "Todo";
+      }
+      row.innerHTML = ic +
+        '<span class="r-main"><span class="r-title"></span><span class="r-ctx"></span></span>' +
+        '<span class="r-tag"></span>';
+      row.querySelector(".r-title").textContent = title;
+      row.querySelector(".r-ctx").textContent = ctx;
+      row.querySelector(".r-tag").textContent = tag;
+      row.addEventListener("click", function () {
+        if (h.kind === "item" && !h.item.archived && h.list.type === "todo") selected[h.list.id] = h.item.id;
+        openList(h.list.id);
+      });
+      box.appendChild(row);
+    });
+  }
+  function renderStats() {
+    renderSidebar();
+    if (currentView === "overview") renderOverview();
+    renderCounters();
+  }
+  function renderCounters() {
+    var tTotal = 0, tDone = 0, nTotal = 0, nArch = 0, hasNotes = false, locked = 0;
+    DATA.lists.forEach(function (l) {
+      if (l.locked) locked++;
+      if (l.type === "notes") { hasNotes = true; l.items.forEach(function (t) { nTotal++; if (t.archived) nArch++; }); }
+      else { l.items.forEach(function (t) { tTotal++; if (t.done) tDone++; }); }
+    });
+    $("cTotal").textContent = tTotal; $("cDone").textContent = tDone; $("cOpen").textContent = tTotal - tDone;
+    $("cNotesBlock").style.display = hasNotes ? "block" : "none";
+    $("cNotesTotal").textContent = nTotal; $("cNotesActive").textContent = nTotal - nArch; $("cNotesArchived").textContent = nArch;
+    $("cLists").textContent = DATA.lists.length; $("cLocked").textContent = locked;
+    $("statsLockedNote").style.display = locked ? "block" : "none";
+  }
+
+  // ---------- Render: list view ----------
+  function makeCheck(checked, onToggle) {
+    var check = document.createElement("span");
+    check.className = "check" + (onToggle ? "" : " static");
+    check.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><path d="m5 12 5 5 9-10"/></svg>';
+    if (onToggle) {
+      check.setAttribute("role", "checkbox"); check.setAttribute("aria-checked", checked ? "true" : "false");
+      check.setAttribute("tabindex", "0"); check.setAttribute("aria-label", checked ? "Mark as not done" : "Mark as done");
+      check.addEventListener("click", function (e) { e.stopPropagation(); onToggle(); });
+      check.addEventListener("keydown", function (e) { if (e.key === " " || e.key === "Enter") { e.preventDefault(); onToggle(); } });
+    }
+    return check;
+  }
+
+  function noteBtnEl(listId, t, stop) {
+    var nb = document.createElement("button");
+    nb.className = "note-btn" + (notesHasContent(t.notes) ? " has" : "");
+    nb.setAttribute("title", notesHasContent(t.notes) ? "Edit notes" : "Add notes");
+    nb.setAttribute("aria-label", notesHasContent(t.notes) ? "Edit notes" : "Add notes");
+    nb.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 3h9l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>';
+    nb.addEventListener("click", function (e) { if (stop) e.stopPropagation(); openNote(listId, t.id); });
+    return nb;
+  }
+  function bodyEl(t) {
+    var body = document.createElement("div"); body.className = "body";
+    var text = document.createElement("span"); text.className = "text"; text.textContent = t.text;
+    body.appendChild(text);
+    if (notesHasContent(t.notes)) {
+      var pv = document.createElement("div"); pv.className = "note-preview";
+      pv.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 3h9l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M9 13h6"/><path d="M9 17h4"/></svg>';
+      var pvt = document.createElement("span"); pvt.className = "pv-text"; pvt.textContent = notesPreview(t.notes);
+      pv.appendChild(pvt); body.appendChild(pv);
+    }
+    return body;
+  }
+  function dailyBadgeEl() {
+    var d = document.createElement("span"); d.className = "badge-daily";
+    d.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>Daily';
+    return d;
+  }
+
+  // ---------- Drag-to-reorder (active list, mouse + touch) ----------
+  var dragState = null;      // { listId, el }
+  var suppressClick = false; // ignore the click a drag would otherwise trigger
+  function dragHandleEl(listId, itemId, li) {
+    var h = document.createElement("span");
+    h.className = "drag-handle"; h.setAttribute("title", "Drag to reorder"); h.setAttribute("aria-label", "Drag to reorder");
+    h.innerHTML = '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="9" cy="6" r="1.6"/><circle cx="15" cy="6" r="1.6"/><circle cx="9" cy="12" r="1.6"/><circle cx="15" cy="12" r="1.6"/><circle cx="9" cy="18" r="1.6"/><circle cx="15" cy="18" r="1.6"/></svg>';
+    h.addEventListener("click", function (e) { e.stopPropagation(); });
+    h.addEventListener("pointerdown", function (e) {
+      if (e.button !== undefined && e.button !== 0) return;
+      e.preventDefault(); e.stopPropagation();
+      dragState = { listId: listId, el: li, moved: false };
+      li.classList.add("dragging");
+      try { h.setPointerCapture(e.pointerId); } catch (er) {}
+      window.addEventListener("pointermove", onDragMove);
+      window.addEventListener("pointerup", onDragEnd, { once: true });
+      window.addEventListener("pointercancel", onDragEnd, { once: true });
+    });
+    return h;
+  }
+  function dragAfter(ul, y) {
+    var els = Array.prototype.slice.call(ul.querySelectorAll("li.todo:not(.dragging)"));
+    var closest = null, closestOffset = -Infinity;
+    els.forEach(function (child) {
+      var box = child.getBoundingClientRect();
+      var offset = y - box.top - box.height / 2;
+      if (offset < 0 && offset > closestOffset) { closestOffset = offset; closest = child; }
+    });
+    return closest;
+  }
+  function onDragMove(e) {
+    if (!dragState) return;
+    e.preventDefault();
+    dragState.moved = true;
+    var ul = $("todoList"), el = dragState.el;
+    var after = dragAfter(ul, e.clientY);
+    if (after == null) { if (ul.lastElementChild !== el) ul.appendChild(el); }
+    else if (after !== el && el.nextSibling !== after) ul.insertBefore(el, after);
+  }
+  function onDragEnd() {
+    if (!dragState) return;
+    var ds = dragState; dragState = null;
+    window.removeEventListener("pointermove", onDragMove);
+    ds.el.classList.remove("dragging");
+    if (ds.moved) {
+      var ul = $("todoList");
+      var order = Array.prototype.slice.call(ul.children).map(function (li) { return li.getAttribute("data-id"); }).filter(Boolean);
+      commitOrder(ds.listId, order);
+      suppressClick = true; setTimeout(function () { suppressClick = false; }, 60);
+    }
+  }
+  function commitOrder(listId, orderIds) {
+    var l = getList(listId); if (!l) return;
+    var byId = {}; l.items.forEach(function (t) { byId[t.id] = t; });
+    var active = orderIds.map(function (id) { return byId[id]; }).filter(function (t) { return t && !t.archived; });
+    var archived = l.items.filter(function (t) { return t.archived; });
+    l.items = active.concat(archived);
+    save(); renderList(l);
+  }
+
+  function renderList(list) {
+    if (!list) return;
+    var isNotes = list.type === "notes";
+    var active = list.items.filter(function (t) { return !t.archived; });
+    var archived = list.items.filter(function (t) { return t.archived; });
+
+    // ----- Active -----
+    var ul = $("todoList"); ul.innerHTML = "";
+    $("emptyState").style.display = active.length ? "none" : "block";
+    active.forEach(function (t) {
+      var li = document.createElement("li");
+      li.className = "todo" + (isNotes ? " noterow" : "") + (!isNotes && t.done ? " done" : "") + (!isNotes && t.id === selected[list.id] ? " sel" : "");
+      li.setAttribute("data-id", t.id);
+      if (t.id === editingItemId) { buildEditRow(li, list, t); ul.appendChild(li); return; }
+      var handle = dragHandleEl(list.id, t.id, li);
+      var meta = document.createElement("span"); meta.className = "meta";
+
+      if (isNotes) {
+        meta.appendChild(rowEditBtn(list.id, t.id));
+        meta.appendChild(noteBtnEl(list.id, t, false));
+        var actions = document.createElement("div"); actions.className = "row-actions";
+        var ab = document.createElement("button"); ab.className = "btn-row archive"; ab.textContent = "Archive";
+        ab.addEventListener("click", function () { archiveItem(list.id, t.id); });
+        var xb = document.createElement("button"); xb.className = "btn-row danger"; xb.textContent = "Delete";
+        xb.addEventListener("click", function () { deleteItem(list.id, t.id); });
+        actions.appendChild(ab); actions.appendChild(xb);
+        li.appendChild(handle); li.appendChild(bodyEl(t)); li.appendChild(meta); li.appendChild(actions);
+      } else {
+        if (t.daily) meta.appendChild(dailyBadgeEl());
+        if (t.done) {
+          var badge = document.createElement("span"); badge.className = "badge-done"; badge.textContent = "Done";
+          var when = document.createElement("span"); when.className = "when"; when.textContent = fmtWhen(t.completed);
+          meta.appendChild(badge); meta.appendChild(when);
+        } else if (!t.daily) {
+          var w = document.createElement("span"); w.className = "when"; w.textContent = fmtWhen(t.created); meta.appendChild(w);
+        }
+        meta.appendChild(noteBtnEl(list.id, t, true));
+        var dt = document.createElement("button");
+        dt.className = "daily-toggle" + (t.daily ? " on" : "");
+        dt.setAttribute("aria-pressed", t.daily ? "true" : "false");
+        dt.setAttribute("title", t.daily ? "Repeats daily — tap to stop" : "Repeat this daily");
+        dt.setAttribute("aria-label", t.daily ? "Stop repeating daily" : "Repeat this daily");
+        dt.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11v-1a4 4 0 0 1 4-4h14"/><path d="M7 22l-4-4 4-4"/><path d="M21 13v1a4 4 0 0 1-4 4H3"/></svg>';
+        dt.addEventListener("click", function (e) { e.stopPropagation(); toggleDaily(list.id, t.id); });
+        meta.appendChild(dt);
+        meta.appendChild(rowEditBtn(list.id, t.id));
+        meta.appendChild(rowDeleteBtn(list.id, t.id));
+        li.appendChild(handle);
+        li.appendChild(makeCheck(t.done, function () { toggleDone(list.id, t.id); }));
+        li.appendChild(bodyEl(t)); li.appendChild(meta);
+        li.addEventListener("click", function () { if (suppressClick) return; selectTodo(list.id, t.id); });
+      }
+      ul.appendChild(li);
+    });
+
+    // ----- Archive (both types: Relist + Delete) -----
+    var arc = $("archiveList"); arc.innerHTML = "";
+    $("archiveEmpty").style.display = archived.length ? "none" : "block";
+    archived.forEach(function (t) {
+      var li = document.createElement("li"); li.className = "todo archived";
+      var meta = document.createElement("span"); meta.className = "meta";
+      if (!isNotes && t.daily) meta.appendChild(dailyBadgeEl());
+      var when = document.createElement("span"); when.className = "when";
+      when.textContent = isNotes ? (fmtWhen(t.created) ? "Added " + fmtWhen(t.created) : "Archived")
+                                 : (t.completed ? "Completed " + fmtWhen(t.completed) : "Archived");
+      meta.appendChild(when);
+      meta.appendChild(noteBtnEl(list.id, t, false));
+      var actions = document.createElement("div"); actions.className = "row-actions";
+      var rb = document.createElement("button"); rb.className = "btn-row relist"; rb.textContent = "Relist";
+      rb.addEventListener("click", function () { relist(list.id, t.id); });
+      var db = document.createElement("button"); db.className = "btn-row danger"; db.textContent = "Delete";
+      db.addEventListener("click", function () { deleteItem(list.id, t.id); });
+      actions.appendChild(rb); actions.appendChild(db);
+      li.appendChild(makeCheck(true, null)); li.appendChild(bodyEl(t)); li.appendChild(meta); li.appendChild(actions);
+      arc.appendChild(li);
+    });
+
+    // ----- Counts & controls -----
+    $("listCount").textContent = active.length;
+    $("archiveCount").textContent = archived.length;
+
+    var aBtn = $("archiveBtn");
+    if (isNotes) {
+      aBtn.style.display = "none";
+    } else {
+      aBtn.style.display = "";
+      var archivable = active.filter(function (t) { return t.done && !t.daily; }).length;
+      aBtn.disabled = archivable === 0;
+      aBtn.querySelector(".archive-label").textContent = archivable ? "Archive done (" + archivable + ")" : "Archive done";
+    }
+
+    var dBtn = $("deleteBtn");
+    if (isNotes) {
+      dBtn.style.display = "none";
+      $("deleteHint").textContent = "Each note has its own Archive and Delete buttons.";
+    } else {
+      dBtn.style.display = "";
+      dBtn.disabled = !selected[list.id];
+      $("deleteHint").textContent = selected[list.id]
+        ? "1 todo selected — press Delete to remove it."
+        : "Tip: tap a todo in the list to select it, then Delete to remove it.";
+    }
+  }
+
+  // ---------- Item actions ----------
+  function findItem(list, id) { for (var i = 0; i < list.items.length; i++) if (list.items[i].id === id) return list.items[i]; return null; }
+
+  function addTodo(listId) {
+    var list = getList(listId); if (!list) return;
+    var input = $("todoInput"); var text = input.value.trim();
+    if (!text) { input.focus(); return; }
+    list.items.push({ id: uid(), text: text, done: false, created: new Date().toISOString(), completed: "", archived: false, daily: false, notes: "" });
+    input.value = ""; input.focus();
+    save(); renderList(list); renderStats();
+  }
+  function toggleDaily(listId, id) {
+    var list = getList(listId); if (!list) return;
+    var t = findItem(list, id); if (!t) return;
+    t.daily = !t.daily;
+    save(); renderList(list);
+  }
+  function deleteSelected(listId) {
+    var list = getList(listId); if (!list || !selected[listId]) return;
+    list.items = list.items.filter(function (t) { return t.id !== selected[listId]; });
+    selected[listId] = null;
+    save(); renderList(list); renderStats(); toast("Todo deleted.");
+  }
+  function toggleDone(listId, id) {
+    var list = getList(listId); if (!list) return;
+    var t = findItem(list, id); if (!t) return;
+    t.done = !t.done; t.completed = t.done ? new Date().toISOString() : "";
+    save(); renderList(list); renderStats();
+  }
+  function selectTodo(listId, id) {
+    selected[listId] = (selected[listId] === id) ? null : id;
+    renderList(getList(listId));
+  }
+  function archiveCompleted(listId) {
+    var list = getList(listId); if (!list) return;
+    var moved = 0;
+    list.items.forEach(function (t) { if (t.done && !t.archived && !t.daily) { t.archived = true; moved++; } });
+    if (!moved) return;
+    if (selected[listId]) { var s = findItem(list, selected[listId]); if (s && s.archived) selected[listId] = null; }
+    save(); renderList(list); renderStats(); toast("Archived " + moved + " item" + (moved === 1 ? "" : "s") + ".");
+  }
+  function relist(listId, id) {
+    var list = getList(listId); if (!list) return;
+    var t = findItem(list, id); if (!t) return;
+    t.archived = false; t.done = false; t.completed = "";
+    save(); renderList(list); renderStats(); toast("Moved back to the list.");
+  }
+  function archiveItem(listId, id) {
+    var list = getList(listId); if (!list) return;
+    var t = findItem(list, id); if (!t) return;
+    t.archived = true;
+    if (selected[listId] === id) selected[listId] = null;
+    save(); renderList(list); renderStats(); toast("Archived.");
+  }
+  function deleteItem(listId, id) {
+    var list = getList(listId); if (!list) return;
+    list.items = list.items.filter(function (t) { return t.id !== id; });
+    if (selected[listId] === id) selected[listId] = null;
+    save(); renderList(list); renderStats(); toast("Deleted.");
+  }
+
+  // ---------- List add / delete ----------
+  function createList(title, desc, type) {
+    var l = { id: "l_" + uid(), title: title.trim(), desc: desc.trim(), accent: DATA.lists.length % ACCENTS.length, builtin: false, type: (type === "notes" ? "notes" : "todo"), locked: false, salt: "", iv: "", ct: "", items: [] };
+    DATA.lists.push(l); save(); renderHome();
+    return l;
+  }
+  function deleteList(listId) {
+    var l = getList(listId); if (!l || l.builtin) return;
+    DATA.lists = DATA.lists.filter(function (x) { return x.id !== listId; });
+    delete selected[listId]; delete sessionKey[listId]; delete unlocked[listId];
+    save(); renderHome();
+  }
+  // Lock: generate a random data key (DK), encrypt items under DK, and wrap DK under both
+  // the list password and the master password. Either password can later recover DK.
+  function lockList(listId, password) {
+    var l = getList(listId); if (!l) return Promise.reject();
+    var salt = randB64(16);
+    var rawDK = crypto.getRandomValues(new Uint8Array(32));
+    return Promise.all([deriveKey(password, salt), getSuperKey(), importDataKey(rawDK.buffer)]).then(function (ks) {
+      var kUser = ks[0], kSuper = ks[1], dk = ks[2];
+      return Promise.all([encBytes(kUser, rawDK), encBytes(kSuper, rawDK)]).then(function (w) {
+        l.locked = true; l.salt = salt;
+        l.ivU = w[0].iv; l.ctU = w[0].ct;
+        l.ivS = w[1].iv; l.ctS = w[1].ct;
+        l.iv = ""; l.ct = "";
+        sessionKey[listId] = dk; unlocked[listId] = true; // ctD produced on next save
+        save();
+      });
+    });
+  }
+
+  function setUnlocked(l, dk, items) { l.items = normItems(items); sessionKey[l.id] = dk; unlocked[l.id] = true; }
+
+  // Convert a legacy (single-key) locked list into the data-key model on first unlock,
+  // so the master override works for it from then on.
+  function migrateLegacy(l, password, items) {
+    var rawDK = crypto.getRandomValues(new Uint8Array(32));
+    return Promise.all([deriveKey(password, l.salt), getSuperKey(), importDataKey(rawDK.buffer)]).then(function (ks) {
+      var kUser = ks[0], kSuper = ks[1], dk = ks[2];
+      return Promise.all([encBytes(kUser, rawDK), encBytes(kSuper, rawDK)]).then(function (w) {
+        l.ivU = w[0].iv; l.ctU = w[0].ct; l.ivS = w[1].iv; l.ctS = w[1].ct;
+        l.iv = ""; l.ct = "";
+        setUnlocked(l, dk, items);
+        save();
+      });
+    });
+  }
+
+  // Unlock with EITHER the list password OR the master password.
+  function unlockList(listId, password) {
+    var l = getList(listId); if (!l || !l.locked) return Promise.resolve(false);
+    if (l.ctD || l.ctU) {
+      // Data-key model: list password -> unwrap DK -> decrypt items
+      return deriveKey(password, l.salt)
+        .then(function (kUser) { return decBytes(kUser, l.ivU, l.ctU); })
+        .then(function (rawDK) { return importDataKey(rawDK); })
+        .then(function (dk) { return decryptItems(dk, l.ivD, l.ctD).then(function (items) { setUnlocked(l, dk, items); return true; }); })
+        .catch(function () { return tryMaster(l, password); });
+    }
+    if (l.ct) {
+      // Legacy single-key blob (items encrypted directly under the list password)
+      return deriveKey(password, l.salt)
+        .then(function (k) { return decryptItems(k, l.iv, l.ct); })
+        .then(function (items) { return migrateLegacy(l, password, items).then(function () { return true; }); })
+        .catch(function () { return false; }); // legacy has no master copy
+    }
+    return Promise.resolve(false);
+  }
+
+  function tryMaster(l, password) {
+    if (!l.ctS) return false;
+    return sha256b64(password).then(function (h) {
+      if (h !== SUPER_HASH) return false;
+      return getSuperKey()
+        .then(function (ks) { return decBytes(ks, l.ivS, l.ctS); })
+        .then(function (rawDK) { return importDataKey(rawDK); })
+        .then(function (dk) { return decryptItems(dk, l.ivD, l.ctD).then(function (items) { setUnlocked(l, dk, items); return true; }); })
+        .catch(function () { return false; });
+    });
+  }
+  function removePassword(listId) {
+    var l = getList(listId); if (!l) return;
+    l.locked = false; l.salt = ""; l.iv = ""; l.ct = "";
+    l.ivD = ""; l.ctD = ""; l.ivU = ""; l.ctU = ""; l.ivS = ""; l.ctS = "";
+    delete sessionKey[listId]; delete unlocked[listId];
+    save(); // now stored as plaintext again
+  }
+
+  // ---------- Modals ----------
+  function openModal(id) { $(id).classList.add("open"); }
+  function closeModal(id) { $(id).classList.remove("open"); }
+  var newListType = "todo";
+  function setNewType(type) {
+    newListType = (type === "notes") ? "notes" : "todo";
+    document.querySelectorAll("#typeSeg [data-type]").forEach(function (b) {
+      b.classList.toggle("sel", b.getAttribute("data-type") === newListType);
+    });
+  }
+  function openAddModal() {
+    $("newTitle").value = ""; $("newDesc").value = ""; $("addError").textContent = "";
+    $("newPw").value = ""; $("newPw2").value = "";
+    $("protectCheck").checked = false; $("protectFields").classList.remove("show");
+    $("protectCheckWrap").style.display = hasCrypto ? "flex" : "none";
+    setNewType("todo");
+    openModal("addModal"); setTimeout(function () { $("newTitle").focus(); }, 50);
+  }
+  function submitAddList() {
+    var title = $("newTitle").value.trim();
+    var desc = $("newDesc").value.trim();
+    var err = $("addError");
+    if (!title) { err.textContent = "Please enter a title."; $("newTitle").focus(); return; }
+    if (titleExists(title)) { err.textContent = "A list with that title already exists."; $("newTitle").focus(); return; }
+    var wantPw = hasCrypto && $("protectCheck").checked;
+    var pw = $("newPw").value, pw2 = $("newPw2").value;
+    if (wantPw) {
+      if (pw.length < 4) { err.textContent = "Password must be at least 4 characters."; $("newPw").focus(); return; }
+      if (pw !== pw2) { err.textContent = "Passwords don't match."; $("newPw2").focus(); return; }
+    }
+    var l = createList(title, desc, newListType);
+    var finish = function () {
+      closeModal("addModal");
+      toast((l.type === "notes" ? "Notes list" : "List") + " “" + l.title + "”" + (wantPw ? " created & locked." : " created."));
+    };
+    if (wantPw) lockList(l.id, pw).then(function () { renderHome(); finish(); }); else finish();
+  }
+
+  var pendingDeleteId = null;
+  function openDeleteModal(listId) {
+    var l = getList(listId); if (!l || l.builtin) return;
+    pendingDeleteId = listId;
+    $("delName").textContent = l.title;
+    $("delConfirm").value = ""; $("delError").textContent = "";
+    $("confirmDeleteBtn").disabled = true;
+    openModal("delModal"); setTimeout(function () { $("delConfirm").focus(); }, 50);
+  }
+  function submitDeleteList() {
+    if (!pendingDeleteId) return;
+    if ($("delConfirm").value.trim().toLowerCase() !== "delete") {
+      $("delError").textContent = "Type the word delete to confirm."; return;
+    }
+    var l = getList(pendingDeleteId);
+    deleteList(pendingDeleteId);
+    pendingDeleteId = null;
+    closeModal("delModal");
+    show("home");
+    toast("List " + (l ? "“" + l.title + "” " : "") + "deleted.");
+  }
+
+  // Unlock (open a locked list)
+  var pendingUnlockId = null;
+  function openUnlockModal(listId) {
+    var l = getList(listId); if (!l) return;
+    pendingUnlockId = listId;
+    $("unlockName").textContent = l.title;
+    $("unlockPw").value = ""; $("unlockError").textContent = "";
+    openModal("unlockModal"); setTimeout(function () { $("unlockPw").focus(); }, 50);
+  }
+  function submitUnlock() {
+    if (!pendingUnlockId) return;
+    var pw = $("unlockPw").value;
+    if (!pw) { $("unlockError").textContent = "Enter the password."; return; }
+    var id = pendingUnlockId;
+    $("unlockBtn").disabled = true;
+    unlockList(id, pw).then(function (ok) {
+      $("unlockBtn").disabled = false;
+      if (!ok) { $("unlockError").textContent = "Incorrect password."; $("unlockPw").select(); return; }
+      pendingUnlockId = null;
+      closeModal("unlockModal");
+      renderHome();
+      openList(id);
+    });
+  }
+
+  // Set a password on the currently open (unlocked) list
+  function openPwModal() {
+    if (!hasCrypto) { toast("Password protection isn't available in this browser context."); return; }
+    var l = getList(currentListId); if (!l) return;
+    $("pwName").textContent = l.title;
+    $("pwInput").value = ""; $("pwInput2").value = ""; $("pwError").textContent = "";
+    openModal("pwModal"); setTimeout(function () { $("pwInput").focus(); }, 50);
+  }
+  function submitSetPw() {
+    var l = getList(currentListId); if (!l) return;
+    var pw = $("pwInput").value, pw2 = $("pwInput2").value;
+    if (pw.length < 4) { $("pwError").textContent = "Password must be at least 4 characters."; return; }
+    if (pw !== pw2) { $("pwError").textContent = "Passwords don't match."; return; }
+    $("pwSetBtn").disabled = true;
+    lockList(l.id, pw).then(function () {
+      $("pwSetBtn").disabled = false;
+      closeModal("pwModal");
+      openList(l.id); // refresh tools/header
+      toast("“" + l.title + "” is now password-protected.");
+    });
+  }
+
+  // ---------- View switching ----------
+  var currentView = "overview";
+  function show(view) {
+    if (view === "home") view = "overview";
+    currentView = view;
+    $("searchInput").value = ""; runSearch(); // clear any active search on navigation
+    $("overviewView").classList.toggle("active", view === "overview");
+    $("listView").classList.toggle("active", view === "list");
+    $("noteView").classList.toggle("active", view === "note");
+    $("jsonToolView").classList.toggle("active", view === "json");
+    $("jsonCsvView").classList.toggle("active", view === "json-csv");
+    $("jsonStitchView").classList.toggle("active", view === "json-stitch");
+    updateNavActive();
+    closeNav(); // close mobile drawer after navigating
+    var c = document.querySelector(".content"); if (c) c.scrollTop = 0;
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+  function openList(id) {
+    var l = getList(id); if (!l) return;
+    currentListId = id;
+    editingItemId = null;
+    var ti = document.getElementById("titleInput"); if (ti) ti.remove();
+    $("listTitle").style.display = ""; $("renameBtn").style.display = "";
+    var ac = ACCENTS[l.accent % ACCENTS.length];
+    $("listTitle").textContent = l.title;
+    var tag = $("listTag"); tag.textContent = tagLabel(l); tag.style.color = ac.fg; tag.style.background = ac.soft;
+    var hl = $("headLock"); hl.style.display = l.locked ? "inline-flex" : "none";
+    $("listSub").textContent = l.desc || "";
+    $("listSub").style.display = l.desc ? "block" : "none";
+    // List tools
+    $("deleteListBtn").style.display = l.builtin ? "none" : "inline-flex";
+    $("lockBtn").style.display = (hasCrypto && !l.locked) ? "inline-flex" : "none";
+    $("removePwBtn").style.display = l.locked ? "inline-flex" : "none";
+    var isNotes = l.type === "notes";
+    $("todoInput").value = "";
+    $("todoInput").placeholder = isNotes ? "Write a note…" : "Write a short description…";
+    $("addPanelTitle").textContent = isNotes ? "Add a note" : "Add a todo";
+    renderList(l);
+    show("list");
+    setTimeout(function () { $("todoInput").focus(); }, 60);
+  }
+
+  // Inline rename of the current list's title
+  function beginRename() {
+    var l = getList(currentListId); if (!l) return;
+    if (document.getElementById("titleInput")) return;
+    var span = $("listTitle"), btn = $("renameBtn");
+    var inp = document.createElement("input");
+    inp.id = "titleInput"; inp.className = "title-input"; inp.value = l.title; inp.maxLength = 40;
+    span.style.display = "none"; btn.style.display = "none";
+    span.parentNode.insertBefore(inp, btn.nextSibling);
+    var finished = false;
+    function done(commit) {
+      if (finished) return; finished = true;
+      var v = inp.value.trim();
+      inp.remove(); span.style.display = ""; btn.style.display = "";
+      if (commit && v) {
+        var dup = DATA.lists.some(function (x) { return x.id !== l.id && x.title.trim().toLowerCase() === v.toLowerCase(); });
+        if (dup) { toast("A list with that title already exists."); }
+        else if (v !== l.title) { l.title = v; save(); toast("List renamed."); }
+      }
+      openList(l.id); renderSidebar(); renderStats();
+    }
+    inp.addEventListener("keydown", function (e) {
+      if (e.key === "Enter") { e.preventDefault(); done(true); }
+      else if (e.key === "Escape") { e.preventDefault(); done(false); }
+    });
+    inp.addEventListener("blur", function () { done(true); });
+    setTimeout(function () { inp.focus(); inp.select(); }, 0);
+  }
+
+  // ---------- Note editor ----------
+  var noteCtx = { listId: null, itemId: null };
+  var noteSaveTimer = null;
+  function scheduleNoteSave() {
+    var l = getList(noteCtx.listId); if (!l) return;
+    var t = findItem(l, noteCtx.itemId); if (!t) return;
+    t.notes = $("noteEditor").innerHTML;
+    clearTimeout(noteSaveTimer);
+    noteSaveTimer = setTimeout(save, 300);
+  }
+  function openNote(listId, itemId) {
+    var l = getList(listId); if (!l) return;
+    var t = findItem(l, itemId); if (!t) return;
+    noteCtx = { listId: listId, itemId: itemId };
+    $("noteItemText").textContent = t.text;
+    $("noteEditor").innerHTML = sanitizeNotes(t.notes || "");
+    show("note");
+    setTimeout(function () {
+      var ed = $("noteEditor"); ed.focus();
+      // place caret at the end
+      try {
+        var range = document.createRange(); range.selectNodeContents(ed); range.collapse(false);
+        var sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range);
+      } catch (e) {}
+    }, 60);
+  }
+  function leaveNote() {
+    clearTimeout(noteSaveTimer); save();
+    var id = noteCtx.listId;
+    noteCtx = { listId: null, itemId: null };
+    if (id && getList(id)) openList(id); else { show("home"); renderHome(); }
+  }
+
+  function initNoteEditor() {
+    var ed = $("noteEditor");
+    ed.addEventListener("input", scheduleNoteSave);
+    // Tab inserts a tab character instead of moving focus
+    ed.addEventListener("keydown", function (e) {
+      if (e.key === "Tab") { e.preventDefault(); document.execCommand("insertText", false, "\t"); }
+    });
+    // Paste as plain text (keeps notes clean and safe)
+    ed.addEventListener("paste", function (e) {
+      e.preventDefault();
+      var txt = (e.clipboardData || window.clipboardData).getData("text/plain");
+      document.execCommand("insertText", false, txt);
+    });
+    // Toolbar
+    document.querySelectorAll("#editorToolbar [data-cmd]").forEach(function (btn) {
+      btn.addEventListener("mousedown", function (e) { e.preventDefault(); }); // keep selection/focus
+      btn.addEventListener("click", function () {
+        ed.focus();
+        document.execCommand(btn.getAttribute("data-cmd"), false, null);
+        scheduleNoteSave();
+      });
+    });
+  }
+
+  // ---------- Wire up ----------
+  function openNav() { $("layout").classList.add("nav-open"); }
+  function closeNav() { $("layout").classList.remove("nav-open"); }
+  $("navOverview").addEventListener("click", function () { relockAll(function () { show("overview"); renderHome(); }); });
+  $("navJsonTool").addEventListener("click", function () { relockAll(function () { show("json"); }); });
+  $("jsonToolBackBtn").addEventListener("click", function () { relockAll(function () { show("overview"); renderHome(); }); });
+  $("jtGoCsv").addEventListener("click", function () { show("json-csv"); });
+  $("jtGoStitch").addEventListener("click", function () { show("json-stitch"); });
+  $("jsonCsvBackBtn").addEventListener("click", function () { show("json"); });
+  $("jsonStitchBackBtn").addEventListener("click", function () { show("json"); });
+  $("navAddList").addEventListener("click", openAddModal);
+  $("collapseBtn").addEventListener("click", function () {
+    var lay = $("layout");
+    if (window.matchMedia("(max-width: 820px)").matches) closeNav();
+    else lay.classList.toggle("collapsed");
+  });
+  $("menuBtn").addEventListener("click", openNav);
+  $("scrim").addEventListener("click", closeNav);
+  $("fab").addEventListener("click", function () {
+    if (currentView === "list" && currentListId) { var i = $("todoInput"); i.focus(); i.scrollIntoView({ behavior: "smooth", block: "center" }); }
+    else openAddModal();
+  });
+  $("searchInput").addEventListener("input", runSearch);
+  $("searchClear").addEventListener("click", function () { $("searchInput").value = ""; runSearch(); $("searchInput").focus(); });
+  $("noteBackBtn") && $("noteBackBtn").addEventListener("click", leaveNote);
+  $("noteDoneBtn").addEventListener("click", leaveNote);
+  $("openBtn").addEventListener("click", openFile);
+  $("saveBtn").addEventListener("click", saveFile);
+  $("csvBtn").addEventListener("click", exportCSV);
+  $("fileInput").addEventListener("change", function (e) {
+    var file = e.target.files && e.target.files[0]; if (!file) return;
+    var reader = new FileReader(); reader.onload = function () { importFile(file.name, String(reader.result)); };
+    reader.readAsText(file); e.target.value = "";
+  });
+
+  $("addBtn").addEventListener("click", function () { addTodo(currentListId); });
+  $("deleteBtn").addEventListener("click", function () { deleteSelected(currentListId); });
+  $("archiveBtn").addEventListener("click", function () { archiveCompleted(currentListId); });
+  $("deleteListBtn").addEventListener("click", function () { openDeleteModal(currentListId); });
+  $("todoInput").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); addTodo(currentListId); } });
+
+  $("createListBtn").addEventListener("click", submitAddList);
+  document.querySelectorAll("#typeSeg [data-type]").forEach(function (b) {
+    b.addEventListener("click", function () { setNewType(b.getAttribute("data-type")); });
+  });
+  $("newTitle").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); $("newDesc").focus(); } });
+  $("protectCheck").addEventListener("change", function () { $("protectFields").classList.toggle("show", this.checked); if (this.checked) setTimeout(function () { $("newPw").focus(); }, 0); });
+
+  // Lock / unlock controls
+  $("renameBtn").addEventListener("click", beginRename);
+  $("statsCollapseBtn").addEventListener("click", function () { $("layout").classList.add("stats-collapsed"); });
+  $("statsExpandBtn").addEventListener("click", function () { $("layout").classList.remove("stats-collapsed"); });
+  $("lockBtn").addEventListener("click", openPwModal);
+  $("removePwBtn").addEventListener("click", function () {
+    var l = getList(currentListId); if (!l) return;
+    removePassword(currentListId);
+    renderHome(); openList(currentListId);
+    toast("Password removed — this list is no longer encrypted.");
+  });
+  $("unlockBtn").addEventListener("click", submitUnlock);
+  $("unlockPw").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); submitUnlock(); } });
+  $("pwSetBtn").addEventListener("click", submitSetPw);
+  $("pwInput2").addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); submitSetPw(); } });
+
+  // ---------- Theme ----------
+  function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    $("themeIc").innerHTML = theme === "dark"
+      ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.9 4.9 1.4 1.4"/><path d="m17.7 17.7 1.4 1.4"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.3 17.7-1.4 1.4"/><path d="m19.1 4.9-1.4 1.4"/></svg>'
+      : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>';
+    $("themeLabel").textContent = theme === "dark" ? "Light mode" : "Dark mode";
+  }
+  function initTheme() {
+    var saved;
+    try { saved = localStorage.getItem(THEME_KEY); } catch (e) {}
+    if (!saved) saved = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) ? "dark" : "light";
+    applyTheme(saved);
+  }
+  $("themeBtn").addEventListener("click", function () {
+    var next = document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    applyTheme(next);
+    try { localStorage.setItem(THEME_KEY, next); } catch (e) {}
+  });
+
+  $("delConfirm").addEventListener("input", function () {
+    $("confirmDeleteBtn").disabled = $("delConfirm").value.trim().toLowerCase() !== "delete";
+    $("delError").textContent = "";
+  });
+  $("delConfirm").addEventListener("keydown", function (e) { if (e.key === "Enter" && !$("confirmDeleteBtn").disabled) { e.preventDefault(); submitDeleteList(); } });
+  $("confirmDeleteBtn").addEventListener("click", submitDeleteList);
+
+  // Modal close handlers (Cancel buttons, backdrop click, Esc)
+  document.querySelectorAll("[data-close]").forEach(function (b) {
+    b.addEventListener("click", function () { closeModal(b.closest(".modal-overlay").id); });
+  });
+  document.querySelectorAll(".modal-overlay").forEach(function (ov) {
+    ov.addEventListener("click", function (e) { if (e.target === ov) closeModal(ov.id); });
+  });
+  document.addEventListener("keydown", function (e) {
+    if (e.key === "Escape") document.querySelectorAll(".modal-overlay.open").forEach(function (ov) { closeModal(ov.id); });
+  });
+
+  // ---------- Day rollover (reset dailies when the local date changes) ----------
+  var liveDayKey = todayKey();
+  function checkRollover() {
+    var tk = todayKey();
+    if (tk === liveDayKey) return;
+    liveDayKey = tk;
+    resetDailies();
+    if (currentView === "overview") renderHome();
+    else { renderList(getList(currentListId)); updateDate(); }
+    renderStats();
+  }
+  setInterval(checkRollover, 30000);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) checkRollover(); });
+  window.addEventListener("focus", checkRollover);
+
+  // Nothing is persisted to disk — warn before a refresh/close would discard unsaved work.
+  window.addEventListener("beforeunload", function (e) {
+    if (dirty) { e.preventDefault(); e.returnValue = ""; return ""; }
+  });
+
+  initTheme();
+  load();
+  initNoteEditor();
+  resetDailies();
+  updateDate();
+  show("overview");
+  renderSidebar();
+  renderOverview();
+  renderCounters();
+})();
+
+  // ─── JSON Tool ───────────────────────────────────────────────────────────────
+
+  (function () {
+    var jtParsedData = null;
+    var jtFileName = '';
+
+    // ── Conversion helpers (ported from json-to-csv.html) ──
+    function jtFormatTimestamp(ts) {
+      if (!ts) return '';
+      try {
+        var d = new Date(ts);
+        if (isNaN(d.getTime())) return ts;
+        var dd = String(d.getUTCDate()).padStart(2, '0');
+        var mm = String(d.getUTCMonth() + 1).padStart(2, '0');
+        var yyyy = d.getUTCFullYear();
+        return dd + '.' + mm + '.' + yyyy;
+      } catch (e) { return ts; }
+    }
+
+    function jtIsIsoTs(val) {
+      return typeof val === 'string' && /^\d{4}-\d{2}-\d{2}T/.test(val);
+    }
+
+    function jtFindRecords(data) {
+      if (Array.isArray(data) && data.length > 0) return data;
+      if (data && typeof data === 'object') {
+        var vals = Object.values(data);
+        for (var i = 0; i < vals.length; i++) {
+          var r = jtFindRecords(vals[i]);
+          if (r) return r;
+        }
+      }
+      return null;
+    }
+
+    function jtFlattenNode(node) {
+      var row = {};
+      var keys = Object.keys(node);
+      for (var ki = 0; ki < keys.length; ki++) {
+        var key = keys[ki];
+        var value = node[key];
+        if (key === 'contacts' && Array.isArray(value)) {
+          for (var ci = 0; ci < value.length; ci++) {
+            var c = value[ci];
+            if (c && c.type) row[c.type] = c.value !== undefined ? c.value : '';
+          }
+        } else if (key === 'status' && value && typeof value === 'object') {
+          row['status_type'] = value.type || '';
+          row['status_date'] = value.timestamp ? jtFormatTimestamp(value.timestamp) : '';
+        } else if (key === 'consent' && value && typeof value === 'object') {
+          var qs = value.questions || [];
+          for (var qi = 0; qi < qs.length; qi++) {
+            var qKey = qs[qi] && qs[qi].question && qs[qi].question.key;
+            var qVal = qs[qi] && qs[qi].answer && qs[qi].answer.answer;
+            if (qKey) row['consent_' + qKey] = qVal !== undefined ? qVal : '';
+          }
+        } else if (typeof value === 'string') {
+          row[key] = jtIsIsoTs(value) ? jtFormatTimestamp(value) : value;
+        } else if (typeof value === 'number' || typeof value === 'boolean') {
+          row[key] = value;
+        } else if (value === null || value === undefined) {
+          row[key] = '';
+        } else if (typeof value === 'object' && !Array.isArray(value)) {
+          var subKeys = Object.keys(value);
+          for (var si = 0; si < subKeys.length; si++) {
+            var sk = subKeys[si];
+            var sv = value[sk];
+            var fk = key + '_' + sk;
+            if (typeof sv === 'string' && jtIsIsoTs(sv)) row[fk] = jtFormatTimestamp(sv);
+            else if (typeof sv !== 'object') row[fk] = sv !== undefined ? sv : '';
+            else row[fk] = JSON.stringify(sv);
+          }
+        } else {
+          row[key] = JSON.stringify(value);
+        }
+      }
+      return row;
+    }
+
+    function jtBuildFieldnames(records, rows) {
+      var contactTypes = [], seenContact = {}, consentKeys = [];
+      for (var ri = 0; ri < records.length; ri++) {
+        var node = records[ri];
+        var contacts = node.contacts || [];
+        for (var ci = 0; ci < contacts.length; ci++) {
+          var ct = contacts[ci] && contacts[ci].type;
+          if (ct && !seenContact[ct]) { seenContact[ct] = true; contactTypes.push(ct); }
+        }
+        var qs = (node.consent && node.consent.questions) || [];
+        for (var qi = 0; qi < qs.length; qi++) {
+          var qk = qs[qi] && qs[qi].question && qs[qi].question.key;
+          if (qk && consentKeys.indexOf(qk) === -1) consentKeys.push(qk);
+        }
+      }
+      var contactOrder = [];
+      ['email', 'phone'].forEach(function (p) { if (seenContact[p]) contactOrder.push(p); });
+      contactTypes.forEach(function (t) { if (contactOrder.indexOf(t) === -1) contactOrder.push(t); });
+
+      var skipSet = {};
+      contactOrder.forEach(function (t) { skipSet[t] = true; });
+      skipSet['status_type'] = true; skipSet['status_date'] = true;
+      consentKeys.sort().forEach(function (k) { skipSet['consent_' + k] = true; });
+
+      var firstRow = rows[0] || {};
+      var scalarFields = Object.keys(firstRow).filter(function (k) { return !skipSet[k]; });
+      var consentCols = consentKeys.sort().map(function (k) { return 'consent_' + k; });
+      var all = scalarFields.concat(contactOrder, ['status_type', 'status_date'], consentCols);
+
+      var seen2 = {}, result = [];
+      all.forEach(function (f) { if (!seen2[f]) { seen2[f] = true; result.push(f); } });
+      return result;
+    }
+
+    function jtToCSV(fieldnames, rows) {
+      function escape(v) {
+        var s = (v === null || v === undefined) ? '' : String(v);
+        return (s.indexOf(',') !== -1 || s.indexOf('"') !== -1 || s.indexOf('\n') !== -1)
+          ? '"' + s.replace(/"/g, '""') + '"' : s;
+      }
+      var lines = [fieldnames.map(escape).join(',')];
+      rows.forEach(function (row) {
+        lines.push(fieldnames.map(function (f) { return escape(row[f] !== undefined ? row[f] : ''); }).join(','));
+      });
+      return lines.join('\r\n');
+    }
+
+    function jtFormatBytes(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+    }
+
+    // ── UI helpers ──
+    function jtEl(id) { return document.getElementById(id); }
+
+    function jtSetStatus(type, msg) {
+      var el = jtEl('jtStatus');
+      el.className = 'jt-status ' + type;
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+
+    function jtHideStatus() { jtEl('jtStatus').classList.add('hidden'); }
+
+    function jtHandleFile(file) {
+      jtFileName = file.name.replace(/\.json$/i, '');
+      jtEl('jtFileName').textContent = file.name;
+      jtEl('jtFileSize').textContent = jtFormatBytes(file.size);
+      jtEl('jtFileInfo').classList.remove('hidden');
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          jtParsedData = JSON.parse(e.target.result);
+          // Preview
+          var preview = JSON.stringify(jtParsedData, null, 2);
+          if (preview.length > 4000) preview = preview.slice(0, 4000) + '\n\n… (truncated for preview)';
+          jtEl('jtPreviewBox').textContent = preview;
+          jtEl('jtPreviewCard').classList.remove('hidden');
+          jtEl('jtConvertCard').classList.remove('hidden');
+          jtHideStatus();
+        } catch (err) {
+          jtSetStatus('error', '\u26a0\ufe0f Invalid JSON: ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function jtConvertAndDownload() {
+      if (!jtParsedData) return;
+      var btn = jtEl('jtConvertBtn');
+      btn.disabled = true;
+      btn.textContent = 'Converting…';
+      try {
+        var records = jtFindRecords(jtParsedData);
+        if (!records || records.length === 0) throw new Error('No records array found in the JSON.');
+        var rows = records.map(jtFlattenNode);
+        var fieldnames = jtBuildFieldnames(records, rows);
+        var csv = jtToCSV(fieldnames, rows);
+
+        jtEl('jtStatRows').textContent = records.length.toLocaleString();
+        jtEl('jtStatCols').textContent = fieldnames.length;
+        jtEl('jtStats').classList.remove('hidden');
+
+        var colList = jtEl('jtColsList');
+        colList.innerHTML = fieldnames.map(function (f) {
+          return '<span class="jt-col-tag">' + f + '</span>';
+        }).join('');
+        colList.classList.remove('hidden');
+
+        var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = jtFileName + '.csv'; a.click();
+        URL.revokeObjectURL(url);
+        jtSetStatus('success', '\u2705 Exported ' + records.length.toLocaleString() + ' rows \u00d7 ' + fieldnames.length + ' columns as ' + jtFileName + '.csv');
+      } catch (err) {
+        jtSetStatus('error', '\u26a0\ufe0f ' + err.message);
+      }
+      btn.disabled = false;
+      btn.textContent = '\u21d3 Convert to CSV';
+    }
+
+    function jtReset() {
+      jtParsedData = null; jtFileName = '';
+      jtEl('jtFileInput').value = '';
+      jtEl('jtFileName').textContent = '';
+      jtEl('jtFileSize').textContent = '';
+      jtEl('jtPreviewBox').textContent = '';
+      jtEl('jtColsList').innerHTML = '';
+      jtEl('jtStatRows').textContent = '—';
+      jtEl('jtStatCols').textContent = '—';
+      jtEl('jtFileInfo').classList.add('hidden');
+      jtEl('jtPreviewCard').classList.add('hidden');
+      jtEl('jtConvertCard').classList.add('hidden');
+      jtEl('jtStats').classList.add('hidden');
+      jtEl('jtColsList').classList.add('hidden');
+      jtHideStatus();
+    }
+
+    // ── Wire upload area ──
+    var uploadArea = jtEl('jtUploadArea');
+    var fileInput  = jtEl('jtFileInput');
+    uploadArea.addEventListener('click', function () { fileInput.click(); });
+    uploadArea.addEventListener('dragover', function (e) { e.preventDefault(); uploadArea.classList.add('drag-over'); });
+    uploadArea.addEventListener('dragleave', function () { uploadArea.classList.remove('drag-over'); });
+    uploadArea.addEventListener('drop', function (e) {
+      e.preventDefault(); uploadArea.classList.remove('drag-over');
+      var file = e.dataTransfer.files[0]; if (file) jtHandleFile(file);
+    });
+    fileInput.addEventListener('change', function () { if (fileInput.files[0]) jtHandleFile(fileInput.files[0]); });
+    jtEl('jtConvertBtn').addEventListener('click', jtConvertAndDownload);
+    jtEl('jtResetBtn').addEventListener('click', jtReset);
+
+    // ── Stitch: deep-merge two JSON files key by key ──
+    var stA = null, stB = null, stNameA = '', stNameB = '';
+
+    function stIsPlainObject(v) { return v && typeof v === 'object' && !Array.isArray(v); }
+
+    // Recursive key-by-key merge. Objects merge deeply, arrays are concatenated,
+    // and on any other conflict (scalar vs scalar, or type mismatch) file B wins.
+    function stDeepMerge(a, b) {
+      if (stIsPlainObject(a) && stIsPlainObject(b)) {
+        var out = {};
+        Object.keys(a).forEach(function (k) { out[k] = a[k]; });
+        Object.keys(b).forEach(function (k) {
+          out[k] = Object.prototype.hasOwnProperty.call(out, k) ? stDeepMerge(out[k], b[k]) : b[k];
+        });
+        return out;
+      }
+      if (Array.isArray(a) && Array.isArray(b)) return a.concat(b);
+      return b;
+    }
+
+    function stSetStatus(type, msg) {
+      var el = jtEl('stStatus'); el.className = 'jt-status ' + type; el.textContent = msg; el.classList.remove('hidden');
+    }
+    function stHideStatus() { jtEl('stStatus').classList.add('hidden'); }
+    function stUpdateMergeBtn() { jtEl('stMergeBtn').disabled = !(stA && stB); }
+
+    function stLoad(which, file) {
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          var parsed = JSON.parse(e.target.result);
+          var base = file.name.replace(/\.json$/i, '');
+          if (which === 'A') {
+            stA = parsed; stNameA = base;
+            jtEl('stNameA').textContent = file.name;
+            jtEl('stSizeA').textContent = jtFormatBytes(file.size);
+            jtEl('stInfoA').classList.remove('hidden');
+          } else {
+            stB = parsed; stNameB = base;
+            jtEl('stNameB').textContent = file.name;
+            jtEl('stSizeB').textContent = jtFormatBytes(file.size);
+            jtEl('stInfoB').classList.remove('hidden');
+          }
+          stHideStatus();
+          stUpdateMergeBtn();
+        } catch (err) {
+          stSetStatus('error', '\u26a0\ufe0f Invalid JSON in file ' + which + ': ' + err.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function stMergeAndDownload() {
+      if (!stA || !stB) return;
+      var btn = jtEl('stMergeBtn');
+      btn.disabled = true; btn.textContent = 'Stitching\u2026';
+      try {
+        var merged = stDeepMerge(stA, stB);
+        var json = JSON.stringify(merged, null, 2);
+
+        var preview = json.length > 4000 ? json.slice(0, 4000) + '\n\n\u2026 (truncated for preview)' : json;
+        jtEl('stPreviewBox').textContent = preview;
+        jtEl('stPreviewCard').classList.remove('hidden');
+
+        var name = (stNameA || 'file-a') + '+' + (stNameB || 'file-b') + '.json';
+        var blob = new Blob([json], { type: 'application/json;charset=utf-8;' });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url; a.download = name; a.click();
+        URL.revokeObjectURL(url);
+
+        stSetStatus('success', '\u2705 Stitched both files and exported as ' + name);
+      } catch (err) {
+        stSetStatus('error', '\u26a0\ufe0f ' + err.message);
+      }
+      btn.textContent = '\u21d3 Stitch & download';
+      btn.disabled = false;
+    }
+
+    function stReset() {
+      stA = null; stB = null; stNameA = ''; stNameB = '';
+      jtEl('stFileA').value = ''; jtEl('stFileB').value = '';
+      jtEl('stNameA').textContent = ''; jtEl('stSizeA').textContent = '';
+      jtEl('stNameB').textContent = ''; jtEl('stSizeB').textContent = '';
+      jtEl('stPreviewBox').textContent = '';
+      jtEl('stInfoA').classList.add('hidden');
+      jtEl('stInfoB').classList.add('hidden');
+      jtEl('stPreviewCard').classList.add('hidden');
+      stHideStatus();
+      stUpdateMergeBtn();
+    }
+
+    function stWireUpload(areaId, inputId, which) {
+      var area = jtEl(areaId), input = jtEl(inputId);
+      area.addEventListener('click', function () { input.click(); });
+      area.addEventListener('dragover', function (e) { e.preventDefault(); area.classList.add('drag-over'); });
+      area.addEventListener('dragleave', function () { area.classList.remove('drag-over'); });
+      area.addEventListener('drop', function (e) {
+        e.preventDefault(); area.classList.remove('drag-over');
+        var f = e.dataTransfer.files[0]; if (f) stLoad(which, f);
+      });
+      input.addEventListener('change', function () { if (input.files[0]) stLoad(which, input.files[0]); });
+    }
+    stWireUpload('stUploadA', 'stFileA', 'A');
+    stWireUpload('stUploadB', 'stFileB', 'B');
+    jtEl('stMergeBtn').addEventListener('click', stMergeAndDownload);
+    jtEl('stResetBtn').addEventListener('click', stReset);
+
+    // ── Nav button + Back button are wired in the main app scope (where the
+    //    view router show() and relockAll() live), so the JSON Tool view is
+    //    toggled through the same path as every other view. ──
+  })();
+
+
+</script>
+</body>
+</html>
