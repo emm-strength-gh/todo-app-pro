@@ -363,8 +363,8 @@
   li.todo.dragging { background: var(--surface); border: 1px solid var(--border-strong); border-radius: 10px; box-shadow: 0 10px 26px rgba(27,36,32,.18); position: relative; z-index: 5; }
   li.todo.dragging + li.todo { border-top-color: transparent; }
   .check svg { width: 13px; height: 13px; opacity: 0; transform: scale(.6); transition: .15s ease; }
-  li.todo.done .check, .check.static { background: var(--gold); border-color: var(--gold); }
-  li.todo.done .check svg, .check.static svg { opacity: 1; transform: none; }
+  li.todo.done .check, .ov-row.done .check, .check.static { background: var(--gold); border-color: var(--gold); }
+  li.todo.done .check svg, .ov-row.done .check svg, .check.static svg { opacity: 1; transform: none; }
   .check.static { cursor: default; }
 
   .todo .body { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
@@ -582,6 +582,113 @@
   .jt-stitch-grid .jt-card { margin-bottom: 0; }
 
   .nav-item#navJsonTool.active { background: var(--pine); color: #fff; }
+  .nav-item#navFreshdesk.active { background: var(--pine); color: #fff; }
+
+  /* ---------- FreshDesk report ---------- */
+  .fd-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 4px 0 18px; }
+  .fd-range { font-size: 13.5px; color: var(--muted); font-weight: 600; }
+
+  .fd-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 18px; }
+  .fd-kpi { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px 18px; }
+  .fd-kpi .k-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
+  .fd-kpi .k-value { font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; font-size: 26px; line-height: 1; color: var(--ink); }
+  .fd-kpi .k-sub { font-size: 12px; color: var(--faint); margin-top: 5px; }
+
+  .fd-grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 16px; }
+  .fd-grid2 .jt-card { margin-bottom: 16px; }
+
+  .fd-card-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .fd-card-head .jt-card-label { margin: 0; }
+
+  /* Segmented toggle */
+  .fd-seg { display: inline-flex; background: var(--track, rgba(0,0,0,.06)); border-radius: 8px; padding: 2px; }
+  html[data-theme="dark"] .fd-seg { background: rgba(255,255,255,.07); }
+  .fd-seg-btn { border: none; background: transparent; color: var(--muted); font: inherit; font-size: 12.5px; font-weight: 600; padding: 5px 12px; border-radius: 6px; cursor: pointer; transition: background .12s, color .12s; }
+  .fd-seg-btn:hover { color: var(--ink); }
+  .fd-seg-btn.active { background: var(--surface); color: var(--pine); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+
+  /* Collapsible section description */
+  .fd-desc { margin: 4px 0 14px; }
+  .fd-desc summary { cursor: pointer; font-size: 12px; color: var(--muted); list-style: none; display: inline-flex; align-items: center; gap: 5px; user-select: none; font-weight: 600; }
+  .fd-desc summary::-webkit-details-marker { display: none; }
+  .fd-desc summary::before { content: "\24d8"; font-size: 13px; }
+  .fd-desc summary:hover { color: var(--ink); }
+  .fd-desc[open] summary { color: var(--ink); }
+  .fd-desc p { font-size: 12.5px; color: var(--muted); line-height: 1.55; margin: 8px 0 2px; max-width: 68ch; }
+  .fd-desc p b { color: var(--ink); font-weight: 600; }
+
+  /* Horizontal category bars */
+  .fd-bars { display: flex; flex-direction: column; gap: 9px; }
+  .fd-bar-row { display: grid; grid-template-columns: 130px 1fr 44px; align-items: center; gap: 10px; font-size: 13px; }
+  .fd-bar-label { color: var(--ink); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fd-bar-track { background: var(--track, rgba(0,0,0,.06)); border-radius: 6px; height: 18px; overflow: hidden; }
+  html[data-theme="dark"] .fd-bar-track { background: rgba(255,255,255,.07); }
+  .fd-bar-fill { height: 100%; border-radius: 6px; background: var(--pine); min-width: 2px; }
+  .fd-bar-val { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+  /* SVG volume chart */
+  .fd-chart { width: 100%; overflow-x: auto; }
+  .fd-chart svg { display: block; width: 100%; height: auto; }
+  .fd-col { fill: var(--pine); }
+  .fd-axis { stroke: var(--border); stroke-width: 1; }
+  .fd-axtext { fill: var(--faint); font-size: 10px; }
+
+  /* Agent table */
+  .fd-tablewrap { overflow-x: auto; }
+  .fd-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  .fd-table th, .fd-table td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  .fd-table th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); font-weight: 600; }
+  .fd-table td { color: var(--ink); }
+  .fd-table td.num, .fd-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .fd-table tbody tr:last-child td { border-bottom: none; }
+
+  /* Clickable breakdown rows (priority drill-down) */
+  .fd-bar-row.fd-clickable { cursor: pointer; padding: 3px 6px; margin: 0 -6px; border-radius: 6px; }
+  .fd-bar-row.fd-clickable:hover, .fd-bar-row.fd-clickable:focus-visible { background: rgba(46,90,78,.07); outline: none; }
+  html[data-theme="dark"] .fd-bar-row.fd-clickable:hover, html[data-theme="dark"] .fd-bar-row.fd-clickable:focus-visible { background: rgba(107,191,163,.12); }
+  .fd-bar-row.fd-clickable .fd-bar-label::after { content: " \203a"; color: var(--faint); }
+
+  /* Tickets drill-down table */
+  .fd-tickets-table td.fd-td-subj { white-space: normal; min-width: 220px; max-width: 420px; }
+  .fd-tickets-table td.fd-td-tags { white-space: normal; max-width: 260px; }
+  .fd-tid-link { color: var(--pine); font-weight: 600; text-decoration: none; font-variant-numeric: tabular-nums; }
+  .fd-tid-link:hover { text-decoration: underline; }
+  html[data-theme="dark"] .fd-tid-link { color: #6bbfa3; }
+  .fd-tag { display: inline-block; background: var(--track, rgba(0,0,0,.06)); color: var(--muted); border-radius: 5px; padding: 1px 7px; font-size: 11.5px; margin: 2px 4px 2px 0; white-space: nowrap; }
+  html[data-theme="dark"] .fd-tag { background: rgba(255,255,255,.09); }
+
+  /* JIRA badge — Atlassian-blue pill with an external-link arrow */
+  .fd-jira-link {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(38,132,255,.12); color: #0052cc;
+    border: 1px solid rgba(38,132,255,.30);
+    border-radius: 7px; padding: 2px 9px;
+    font-size: 12.5px; font-weight: 700; letter-spacing: .1px;
+    text-decoration: none; font-variant-numeric: tabular-nums;
+    transition: background .12s, border-color .12s, box-shadow .12s, transform .05s;
+  }
+  .fd-jira-link:hover { background: rgba(38,132,255,.20); border-color: rgba(38,132,255,.55); box-shadow: 0 1px 4px rgba(38,132,255,.25); }
+  .fd-jira-link:active { transform: scale(.97); }
+  .fd-jira-link svg { width: 12px; height: 12px; opacity: .85; flex: none; }
+  html[data-theme="dark"] .fd-jira-link { background: rgba(56,139,255,.20); color: #9cc4ff; border-color: rgba(56,139,255,.45); }
+  html[data-theme="dark"] .fd-jira-link:hover { background: rgba(56,139,255,.32); box-shadow: none; }
+  .fd-open-flag { color: var(--faint); font-size: 11.5px; }
+
+  /* Drill-down sort/filter controls */
+  .fd-drill-controls { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; }
+  .fd-ctl { display: inline-flex; flex-direction: column; gap: 5px; font-size: 11.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .fd-ctl select {
+    font: inherit; font-size: 13.5px; font-weight: 500; text-transform: none; letter-spacing: normal;
+    color: var(--ink); background: var(--surface); border: 1px solid var(--border-strong);
+    border-radius: 8px; padding: 7px 10px; cursor: pointer; min-width: 150px;
+  }
+  .fd-ctl select:focus { outline: none; border-color: var(--pine); }
+  .fd-dir-btn {
+    font: inherit; font-size: 15px; line-height: 1; color: var(--ink); background: var(--surface);
+    border: 1px solid var(--border-strong); border-radius: 8px; padding: 8px 12px; cursor: pointer;
+    height: 36px; transition: border-color .12s, color .12s;
+  }
+  .fd-dir-btn:hover { border-color: var(--pine); color: var(--pine); }
   .nav-item#navJsonTool.active .nav-ic svg { stroke: #fff; }
 </style>
 </head>
@@ -614,6 +721,12 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 3h9l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M8 13h.01"/><path d="M12 13h4"/><path d="M8 17h.01"/><path d="M12 17h4"/></svg>
         </span>
         <span class="nav-label">JSON Tool</span>
+      </button>
+      <button class="nav-item" id="navFreshdesk">
+        <span class="nav-ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6" rx="1"/><rect x="12" y="8" width="3" height="10" rx="1"/><rect x="17" y="5" width="3" height="13" rx="1"/></svg>
+        </span>
+        <span class="nav-label">FreshDesk</span>
       </button>
       <button class="nav-item" id="themeBtn"><span class="nav-ic" id="themeIc"></span><span class="nav-label" id="themeLabel">Dark mode</span></button>
       <button class="nav-item" id="openBtn"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 3h9l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M12 18v-6"/><path d="m9 15 3-3 3 3"/></svg></span><span class="nav-label">Open file</span></button>
@@ -869,6 +982,120 @@
             <button class="btn-solid jt-convert-btn" id="stMergeBtn" disabled>&#8659; Stitch &amp; download</button>
             <button class="btn-ghost" id="stResetBtn">Reset</button>
           </div>
+        </div>
+      </section>
+
+      <!-- FreshDesk ticket analytics -->
+      <section class="view" id="freshdeskView">
+        <h1 class="page-title" style="margin-bottom:4px;">FreshDesk Report</h1>
+        <p class="jt-sub">Load a Freshdesk ticket export (CSV) to see volume, agent, and helpdesk-performance breakdowns.</p>
+
+        <div class="jt-card" id="fdLoadCard">
+          <p class="jt-card-label">Load data</p>
+          <div class="jt-upload-area" id="fdUploadArea">
+            <div class="jt-upload-icon">📊</div>
+            <strong>Load FreshDesk CSV</strong>
+            <p>click to choose, or drag &amp; drop your ticket export here</p>
+          </div>
+          <input type="file" id="fdFileInput" accept=".csv,text/csv" style="display:none">
+          <div class="jt-file-info hidden" id="fdFileInfo">
+            <span>📄</span>
+            <span class="jt-file-name" id="fdFileName"></span>
+            <span class="jt-file-size" id="fdFileSize"></span>
+          </div>
+          <div class="jt-status hidden" id="fdStatus"></div>
+        </div>
+
+        <div id="fdReport" class="hidden">
+          <div class="fd-toolbar">
+            <span class="fd-range" id="fdRange"></span>
+            <button class="btn-ghost" id="fdResetBtn">Load a different file</button>
+          </div>
+
+          <!-- KPI tiles -->
+          <div class="fd-kpis" id="fdKpis"></div>
+          <details class="fd-desc">
+            <summary>What these numbers mean</summary>
+            <p>Headline totals for the whole file. <b>Resolved</b> counts tickets in a closed state (Closed, Resolved, or Ready to Close). <b>Median</b> times sit next to the averages because a handful of very long tickets can pull an average upward, so the median is usually the more honest "typical" figure. <b>Avg interactions</b> is the mean of Freshdesk's <i>Customer interactions</i> count — roughly how many replies/messages were exchanged on a ticket, so it's a proxy for how much back-and-forth each one needed (higher = more effort per ticket).</p>
+          </details>
+
+          <!-- Volume over time -->
+          <div class="jt-card">
+            <div class="fd-card-head">
+              <p class="jt-card-label">Ticket volume (created)</p>
+              <div class="fd-seg" id="fdVolMode" role="group" aria-label="Volume grouping">
+                <button type="button" class="fd-seg-btn active" data-mode="day">Per day</button>
+                <button type="button" class="fd-seg-btn" data-mode="week">Per week</button>
+              </div>
+            </div>
+            <details class="fd-desc">
+              <summary>What this shows</summary>
+              <p>How many tickets were created in each period, by the ticket's created date. Toggle <b>Per day</b> / <b>Per week</b> to smooth out day-to-day noise and see the broader trend. Weeks start on Monday; hover a bar for the exact count.</p>
+            </details>
+            <div class="fd-chart" id="fdVolume"></div>
+          </div>
+
+          <!-- Agent performance -->
+          <div class="jt-card">
+            <p class="jt-card-label">Agent performance</p>
+            <details class="fd-desc">
+              <summary>What this shows</summary>
+              <p>One row per agent. <b>Tickets</b> is the total assigned to them; <b>Resolved</b> is how many reached a closed state. Median first-response and resolution times reflect speed, and avg interactions reflects how much back-and-forth their tickets needed. Compare median resolution across agents rather than the average, since one stuck ticket can distort a mean.</p>
+            </details>
+            <div class="fd-tablewrap"><table class="fd-table" id="fdAgents"></table></div>
+          </div>
+
+          <!-- Response / resolution distribution -->
+          <div class="fd-grid2">
+            <div class="jt-card">
+              <p class="jt-card-label">First-response time</p>
+              <details class="fd-desc">
+                <summary>What this shows</summary>
+                <p>How long the first reply took, grouped into time bands. Weighted toward the left (under a few hours) is healthy — a large "&gt; 24h" bar points to tickets waiting too long for an initial touch.</p>
+              </details>
+              <div class="fd-bars" id="fdFrtDist"></div>
+            </div>
+            <div class="jt-card">
+              <p class="jt-card-label">Resolution time</p>
+              <details class="fd-desc">
+                <summary>What this shows</summary>
+                <p>How long tickets took to fully resolve, in bands. A long tail (over 3 days) is worth digging into — it's often a few complex or escalated tickets.</p>
+              </details>
+              <div class="fd-bars" id="fdResDist"></div>
+            </div>
+          </div>
+
+          <!-- Categorical breakdowns -->
+          <div class="fd-grid2" id="fdBreakdowns"></div>
+        </div>
+      </section>
+
+      <!-- FreshDesk: tickets drill-down (from a priority) -->
+      <section class="view" id="fdTicketsView">
+        <div class="jt-back-row">
+          <button class="jt-back-btn" id="fdTicketsBackBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+            FreshDesk Report
+          </button>
+        </div>
+        <h1 class="page-title" style="margin-bottom:4px;" id="fdTicketsTitle">Tickets</h1>
+        <p class="jt-sub" id="fdTicketsSub"></p>
+        <div class="jt-card">
+          <div class="fd-drill-controls">
+            <label class="fd-ctl">Sort by
+              <select id="fdSortField">
+                <option value="id">Ticket ID</option>
+                <option value="open">Time open</option>
+              </select>
+            </label>
+            <button type="button" class="fd-dir-btn" id="fdSortDir" data-dir="asc" title="Toggle ascending / descending" aria-label="Toggle sort direction">
+              <span id="fdSortDirIc">&#8593;</span>
+            </button>
+            <label class="fd-ctl"><span id="fdFilterLabel">Status</span>
+              <select id="fdFilterSelect"><option value="">All</option></select>
+            </label>
+          </div>
+          <div class="fd-tablewrap"><table class="fd-table fd-tickets-table" id="fdTicketsTable"></table></div>
         </div>
       </section>
 
@@ -1476,6 +1703,8 @@
     $("navOverview").classList.toggle("active", currentView === "overview");
     var jt = document.getElementById("navJsonTool");
     if (jt) jt.classList.toggle("active", currentView.indexOf("json") === 0);
+    var fd = document.getElementById("navFreshdesk");
+    if (fd) fd.classList.toggle("active", currentView === "freshdesk" || currentView === "fd-tickets");
     var items = document.querySelectorAll("#navLists .nav-item");
     Array.prototype.forEach.call(items, function (b) {
       b.classList.toggle("active", currentView === "list" && b.getAttribute("data-listid") === currentListId);
@@ -2166,6 +2395,8 @@
     $("jsonToolView").classList.toggle("active", view === "json");
     $("jsonCsvView").classList.toggle("active", view === "json-csv");
     $("jsonStitchView").classList.toggle("active", view === "json-stitch");
+    $("freshdeskView").classList.toggle("active", view === "freshdesk");
+    $("fdTicketsView").classList.toggle("active", view === "fd-tickets");
     updateNavActive();
     closeNav(); // close mobile drawer after navigating
     var c = document.querySelector(".content"); if (c) c.scrollTop = 0;
@@ -2292,6 +2523,24 @@
   $("jtGoStitch").addEventListener("click", function () { show("json-stitch"); });
   $("jsonCsvBackBtn").addEventListener("click", function () { show("json"); });
   $("jsonStitchBackBtn").addEventListener("click", function () { show("json"); });
+  $("navFreshdesk").addEventListener("click", function () { relockAll(function () { show("freshdesk"); }); });
+  $("fdTicketsBackBtn").addEventListener("click", function () { show("freshdesk"); });
+  (function () {
+    function openDrill(row) {
+      if (!row) return;
+      var dim = row.getAttribute("data-fd-drill");
+      var val = row.getAttribute("data-fd-value");
+      if (window.fdOpenDrill && window.fdOpenDrill(dim, val)) show("fd-tickets");
+    }
+    $("fdBreakdowns").addEventListener("click", function (e) {
+      openDrill(e.target.closest('.fd-bar-row[data-fd-drill]'));
+    });
+    $("fdBreakdowns").addEventListener("keydown", function (e) {
+      if (e.key !== "Enter" && e.key !== " ") return;
+      var row = e.target.closest('.fd-bar-row[data-fd-drill]');
+      if (row) { e.preventDefault(); openDrill(row); }
+    });
+  })();
   $("navAddList").addEventListener("click", openAddModal);
   $("collapseBtn").addEventListener("click", function () {
     var lay = $("layout");
@@ -2759,6 +3008,558 @@
     // ── Nav button + Back button are wired in the main app scope (where the
     //    view router show() and relockAll() live), so the JSON Tool view is
     //    toggled through the same path as every other view. ──
+  })();
+
+  // ─── FreshDesk ticket analytics ──────────────────────────────────────────
+  (function () {
+    function fdEl(id) { return document.getElementById(id); }
+    var PALETTE = ['#2e5a4e', '#b07c12', '#3d7a8c', '#8c5a3d', '#5a6e2e', '#6b4a8c', '#a03d5a', '#3d8c6b'];
+    var fdCurrent = null;   // last analysed dataset (for re-rendering on toggle)
+    var fdMode = 'day';     // 'day' | 'week' for the volume chart
+
+    // Robust CSV parser: handles quoted fields, escaped quotes, and newlines in quotes.
+    function fdParseCSV(text) {
+      var rows = [], row = [], field = '', inQ = false, i = 0;
+      text = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+      if (text.charCodeAt(0) === 0xFEFF) text = text.slice(1); // strip BOM
+      while (i < text.length) {
+        var c = text[i];
+        if (inQ) {
+          if (c === '"') {
+            if (text[i + 1] === '"') { field += '"'; i += 2; continue; }
+            inQ = false; i++; continue;
+          }
+          field += c; i++; continue;
+        }
+        if (c === '"') { inQ = true; i++; continue; }
+        if (c === ',') { row.push(field); field = ''; i++; continue; }
+        if (c === '\n') { row.push(field); rows.push(row); row = []; field = ''; i++; continue; }
+        field += c; i++;
+      }
+      if (field.length > 0 || row.length > 0) { row.push(field); rows.push(row); }
+      return rows;
+    }
+
+    function fdToObjects(rows) {
+      if (!rows.length) return [];
+      var header = rows[0].map(function (h) { return (h || '').trim(); });
+      var out = [];
+      for (var r = 1; r < rows.length; r++) {
+        var cells = rows[r];
+        if (cells.length === 1 && (cells[0] || '').trim() === '') continue; // skip blank line
+        var o = {};
+        for (var c = 0; c < header.length; c++) o[header[c]] = cells[c] !== undefined ? cells[c] : '';
+        out.push(o);
+      }
+      return out;
+    }
+
+    // Case-insensitive column resolver so slightly different exports still work.
+    function fdCol(obj, names) {
+      var keys = Object.keys(obj);
+      for (var n = 0; n < names.length; n++) {
+        var want = names[n].toLowerCase();
+        for (var k = 0; k < keys.length; k++) {
+          if (keys[k].toLowerCase() === want) return keys[k];
+        }
+      }
+      return null;
+    }
+
+    function fdHours(s) {
+      s = (s || '').trim(); if (!s) return null;
+      var m = s.match(/^(\d+):(\d{1,2}):(\d{1,2})$/);
+      if (m) return (+m[1]) + (+m[2]) / 60 + (+m[3]) / 3600;
+      var f = parseFloat(s.replace(',', '.'));
+      return isNaN(f) ? null : f;
+    }
+    function fdMean(a) { if (!a.length) return null; var s = 0; for (var i = 0; i < a.length; i++) s += a[i]; return s / a.length; }
+    function fdMedian(a) {
+      if (!a.length) return null;
+      var b = a.slice().sort(function (x, y) { return x - y; }), n = b.length, mid = n >> 1;
+      return n % 2 ? b[mid] : (b[mid - 1] + b[mid]) / 2;
+    }
+    function fdFmtHrs(h) {
+      if (h == null) return '\u2014';
+      if (h < 1) return Math.max(1, Math.round(h * 60)) + 'm';
+      if (h < 48) return (Math.round(h * 10) / 10) + 'h';
+      return (Math.round(h / 24 * 10) / 10) + 'd';
+    }
+    function fdEsc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+    // Parse a "YYYY-MM-DD HH:MM:SS" timestamp into a Date (or null).
+    function fdParseTs(s) {
+      s = (s || '').trim(); if (!s) return null;
+      var d = new Date(s.replace(' ', 'T'));
+      return isNaN(d.getTime()) ? null : d;
+    }
+    // Human duration from milliseconds: "43m", "5h 12m", "2d 4h".
+    function fdDur(ms) {
+      if (ms == null || isNaN(ms) || ms < 0) return '\u2014';
+      var mins = Math.round(ms / 60000);
+      if (mins < 60) return Math.max(1, mins) + 'm';
+      var hrs = Math.floor(mins / 60), rmin = mins % 60;
+      if (hrs < 24) return hrs + 'h' + (rmin ? (' ' + rmin + 'm') : '');
+      var days = Math.floor(hrs / 24), rhrs = hrs % 24;
+      return days + 'd' + (rhrs ? (' ' + rhrs + 'h') : '');
+    }
+
+    function fdCounts(objs, key) {
+      var map = {};
+      for (var i = 0; i < objs.length; i++) {
+        var v = key ? (objs[i][key] || '').trim() : '';
+        if (!v) v = '(blank)';
+        map[v] = (map[v] || 0) + 1;
+      }
+      return Object.keys(map).map(function (k) { return [k, map[k]]; })
+        .sort(function (a, b) { return b[1] - a[1]; });
+    }
+
+    // ── Rendering helpers ──
+    function fdKpi(label, value, sub) {
+      return '<div class="fd-kpi"><div class="k-label">' + fdEsc(label) + '</div>' +
+        '<div class="k-value">' + fdEsc(value) + '</div>' +
+        (sub ? '<div class="k-sub">' + fdEsc(sub) + '</div>' : '') + '</div>';
+    }
+
+    function fdBars(pairs, opts) {
+      opts = opts || {};
+      var max = 0, i;
+      for (i = 0; i < pairs.length; i++) if (pairs[i][1] > max) max = pairs[i][1];
+      if (!max) max = 1;
+      var total = 0; for (i = 0; i < pairs.length; i++) total += pairs[i][1];
+      var html = '';
+      for (i = 0; i < pairs.length; i++) {
+        var pct = Math.round(pairs[i][1] / max * 100);
+        var color = opts.color || PALETTE[i % PALETTE.length];
+        var valTxt = opts.pctOfTotal ? (Math.round(pairs[i][1] / (total || 1) * 100) + '%') : pairs[i][1];
+        var attrs = opts.drill
+          ? ' class="fd-bar-row fd-clickable" role="button" tabindex="0" data-fd-drill="' + fdEsc(opts.drill) + '" data-fd-value="' + fdEsc(pairs[i][0]) + '" aria-label="View ' + fdEsc(pairs[i][0]) + ' tickets"'
+          : ' class="fd-bar-row"';
+        html += '<div' + attrs + '>' +
+          '<span class="fd-bar-label" title="' + fdEsc(pairs[i][0]) + '">' + fdEsc(pairs[i][0]) + '</span>' +
+          '<span class="fd-bar-track"><span class="fd-bar-fill" style="width:' + pct + '%;background:' + color + '"></span></span>' +
+          '<span class="fd-bar-val">' + valTxt + '</span></div>';
+      }
+      return html;
+    }
+
+    function fdRenderBreakdownCard(title, pairs, limit, desc, drill) {
+      var shown = limit ? pairs.slice(0, limit) : pairs;
+      var extra = (limit && pairs.length > limit) ? (pairs.length - limit) : 0;
+      return '<div class="jt-card"><p class="jt-card-label">' + fdEsc(title) + '</p>' +
+        (desc ? '<details class="fd-desc"><summary>What this shows</summary><p>' + fdEsc(desc) + '</p></details>' : '') +
+        '<div class="fd-bars">' + fdBars(shown, { drill: drill }) + '</div>' +
+        (extra ? '<p class="jt-sub" style="margin-top:10px;">+ ' + extra + ' more</p>' : '') + '</div>';
+    }
+
+    // Aggregate daily [YYYY-MM-DD,count] pairs into ISO-ish weeks (Monday start).
+    function fdWeekly(dayPairs) {
+      function weekStart(iso) {
+        var d = new Date(iso + 'T00:00:00Z');
+        var dow = d.getUTCDay();               // 0=Sun .. 6=Sat
+        var diff = (dow === 0 ? -6 : 1 - dow); // shift back to Monday
+        d.setUTCDate(d.getUTCDate() + diff);
+        return d.toISOString().slice(0, 10);
+      }
+      var map = {};
+      for (var i = 0; i < dayPairs.length; i++) {
+        var w = weekStart(dayPairs[i][0]);
+        map[w] = (map[w] || 0) + dayPairs[i][1];
+      }
+      return Object.keys(map).sort().map(function (k) { return [k, map[k]]; });
+    }
+
+    // Render the volume chart for the current dataset + mode into #fdVolume.
+    function fdRenderVolume() {
+      var host = fdEl('fdVolume');
+      if (!fdCurrent || !fdCurrent.dayPairs.length) { host.innerHTML = '<p class="jt-sub">No created-date data.</p>'; return; }
+      var pairs = fdMode === 'week' ? fdWeekly(fdCurrent.dayPairs) : fdCurrent.dayPairs;
+      host.innerHTML = fdVolumeChart(pairs, fdMode);
+    }
+
+    function fdVolumeChart(pairs, mode) {
+      // pairs: [ [YYYY-MM-DD, count], ... ] sorted ascending
+      var isWeek = mode === 'week';
+      var slot = isWeek ? 54 : 26;
+      var W = Math.max(560, pairs.length * slot), H = 200, padB = 34, padT = 10, padL = 30;
+      var innerW = W - padL - 10, innerH = H - padB - padT;
+      var max = 0, i; for (i = 0; i < pairs.length; i++) if (pairs[i][1] > max) max = pairs[i][1];
+      if (!max) max = 1;
+      var n = pairs.length, gap = isWeek ? 8 : 4;
+      var bw = n ? Math.max(3, (innerW / n) - gap) : innerW;
+      var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="xMinYMin meet" role="img" aria-label="Ticket volume by ' + (isWeek ? 'week' : 'day') + '">';
+      [0, 0.5, 1].forEach(function (t) {
+        var y = padT + innerH - t * innerH;
+        svg += '<line class="fd-axis" x1="' + padL + '" y1="' + y + '" x2="' + (W - 10) + '" y2="' + y + '"/>';
+        svg += '<text class="fd-axtext" x="' + (padL - 5) + '" y="' + (y + 3) + '" text-anchor="end">' + Math.round(t * max) + '</text>';
+      });
+      for (i = 0; i < n; i++) {
+        var h = pairs[i][1] / max * innerH;
+        var x = padL + i * (bw + gap);
+        var y2 = padT + innerH - h;
+        var tip = isWeek ? ('Week of ' + pairs[i][0]) : pairs[i][0];
+        svg += '<rect class="fd-col" x="' + x.toFixed(1) + '" y="' + y2.toFixed(1) + '" width="' + bw.toFixed(1) + '" height="' + h.toFixed(1) + '" rx="2"><title>' + fdEsc(tip) + ': ' + pairs[i][1] + '</title></rect>';
+        var step = Math.ceil(n / 12);
+        if (isWeek || n <= 16 || i % step === 0) {
+          var lbl = pairs[i][0].slice(5); // MM-DD
+          svg += '<text class="fd-axtext" x="' + (x + bw / 2).toFixed(1) + '" y="' + (H - 12) + '" text-anchor="middle">' + lbl + '</text>';
+        }
+      }
+      return svg + '</svg>';
+    }
+
+    // ── Main analysis ──
+    function fdAnalyze(objs) {
+      if (!objs.length) throw new Error('No rows found in the CSV.');
+      var sample = objs[0];
+      var cStatus = fdCol(sample, ['Status']);
+      var cPriority = fdCol(sample, ['Priority']);
+      var cType = fdCol(sample, ['Type']);
+      var cAgent = fdCol(sample, ['Agent', 'Assigned agent']);
+      var cCreated = fdCol(sample, ['Created time', 'Created', 'Created at']);
+      var cFrt = fdCol(sample, ['First response time (in hrs)', 'First response time', 'Initial response time']);
+      var cRes = fdCol(sample, ['Resolution time (in hrs)', 'Resolution time']);
+      var cInter = fdCol(sample, ['Customer interactions', 'Interactions']);
+      var cClient = fdCol(sample, ['Client', 'Company']);
+      var cDept = fdCol(sample, ['Department']);
+      var cArea = fdCol(sample, ['Area of Cause', 'Area']);
+      var cUserType = fdCol(sample, ['User Type']);
+      var cSurvey = fdCol(sample, ['Survey results', 'Survey']);
+      var cId = fdCol(sample, ['Ticket ID', 'ID']);
+      var cSubject = fdCol(sample, ['Subject', 'Title']);
+      var cClosed = fdCol(sample, ['Closed time', 'Closed at']);
+      var cResolved = fdCol(sample, ['Resolved time', 'Resolved at']);
+      var cTags = fdCol(sample, ['Tags', 'Tag']);
+
+      var frt = [], res = [], inter = [], days = {}, i;
+      var closedRe = /^(closed|resolved|ready to close)/i;
+      var closedCount = 0;
+      for (i = 0; i < objs.length; i++) {
+        var o = objs[i];
+        if (cFrt) { var f = fdHours(o[cFrt]); if (f != null) frt.push(f); }
+        if (cRes) { var r = fdHours(o[cRes]); if (r != null) res.push(r); }
+        if (cInter) { var iv = parseFloat(o[cInter]); if (!isNaN(iv)) inter.push(iv); }
+        if (cStatus && closedRe.test((o[cStatus] || '').trim())) closedCount++;
+        if (cCreated) {
+          var d = (o[cCreated] || '').trim().slice(0, 10);
+          if (/^\d{4}-\d{2}-\d{2}$/.test(d)) days[d] = (days[d] || 0) + 1;
+        }
+      }
+
+      var dayPairs = Object.keys(days).sort().map(function (k) { return [k, days[k]]; });
+
+      // Agent performance
+      var agentMap = {};
+      if (cAgent) {
+        for (i = 0; i < objs.length; i++) {
+          var a = (objs[i][cAgent] || '').trim() || '(unassigned)';
+          if (!agentMap[a]) agentMap[a] = { name: a, n: 0, frt: [], res: [], inter: [], closed: 0 };
+          var g = agentMap[a];
+          g.n++;
+          if (cFrt) { var af = fdHours(objs[i][cFrt]); if (af != null) g.frt.push(af); }
+          if (cRes) { var ar = fdHours(objs[i][cRes]); if (ar != null) g.res.push(ar); }
+          if (cInter) { var ai = parseFloat(objs[i][cInter]); if (!isNaN(ai)) g.inter.push(ai); }
+          if (cStatus && closedRe.test((objs[i][cStatus] || '').trim())) g.closed++;
+        }
+      }
+      var agents = Object.keys(agentMap).map(function (k) { return agentMap[k]; })
+        .sort(function (x, y) { return y.n - x.n; });
+
+      // Distributions
+      function bucketize(arr, edges, labels) {
+        var out = labels.map(function (l) { return [l, 0]; });
+        for (var j = 0; j < arr.length; j++) {
+          var v = arr[j], placed = false;
+          for (var e = 0; e < edges.length; e++) {
+            if (v < edges[e]) { out[e][1]++; placed = true; break; }
+          }
+          if (!placed) out[out.length - 1][1]++;
+        }
+        return out;
+      }
+      var frtDist = bucketize(frt, [1, 4, 8, 24], ['< 1h', '1\u20134h', '4\u20138h', '8\u201324h', '> 24h']);
+      var resDist = bucketize(res, [4, 24, 72], ['< 4h', '4\u201324h', '1\u20133d', '> 3d']);
+
+      return {
+        cols: { cStatus: cStatus, cPriority: cPriority, cType: cType, cClient: cClient, cDept: cDept, cArea: cArea, cUserType: cUserType, cSurvey: cSurvey, cId: cId, cSubject: cSubject, cCreated: cCreated, cClosed: cClosed, cResolved: cResolved, cTags: cTags },
+        objs: objs, total: objs.length, closedCount: closedCount,
+        frt: frt, res: res, inter: inter, dayPairs: dayPairs, agents: agents,
+        frtDist: frtDist, resDist: resDist,
+        created: { min: dayPairs.length ? dayPairs[0][0] : null, max: dayPairs.length ? dayPairs[dayPairs.length - 1][0] : null }
+      };
+    }
+
+    function fdRender(A) {
+      // Range
+      var rangeTxt = A.created.min ? ('Created ' + A.created.min + ' \u2192 ' + A.created.max + ' \u00b7 ' + A.total + ' tickets') : (A.total + ' tickets');
+      fdEl('fdRange').textContent = rangeTxt;
+
+      // KPIs
+      var resolvedPct = A.total ? Math.round(A.closedCount / A.total * 100) : 0;
+      var perDay = A.dayPairs.length ? (A.total / A.dayPairs.length) : 0;
+      var kpis = '';
+      kpis += fdKpi('Total tickets', A.total, A.dayPairs.length ? (A.dayPairs.length + ' active days') : '');
+      kpis += fdKpi('Resolved', resolvedPct + '%', A.closedCount + ' of ' + A.total + ' closed');
+      kpis += fdKpi('Open', (A.total - A.closedCount), 'not yet closed');
+      kpis += fdKpi('Median 1st response', fdFmtHrs(fdMedian(A.frt)), 'avg ' + fdFmtHrs(fdMean(A.frt)));
+      kpis += fdKpi('Median resolution', fdFmtHrs(fdMedian(A.res)), 'avg ' + fdFmtHrs(fdMean(A.res)));
+      kpis += fdKpi('Avg tickets / day', (Math.round(perDay * 10) / 10), '');
+      var mi = fdMean(A.inter);
+      if (mi != null) kpis += fdKpi('Avg interactions', (Math.round(mi * 10) / 10), 'per ticket');
+      fdEl('fdKpis').innerHTML = kpis;
+
+      // Volume chart (respects the current Per day / Per week toggle)
+      fdCurrent = A;
+      fdRenderVolume();
+
+      // Agent table
+      var at = '<thead><tr><th>Agent</th><th class="num">Tickets</th><th class="num">Resolved</th><th class="num">Median 1st resp</th><th class="num">Median resolution</th><th class="num">Avg interactions</th></tr></thead><tbody>';
+      if (A.agents.length) {
+        A.agents.forEach(function (g) {
+          at += '<tr><td>' + fdEsc(g.name) + '</td>' +
+            '<td class="num">' + g.n + '</td>' +
+            '<td class="num">' + g.closed + '</td>' +
+            '<td class="num">' + fdFmtHrs(fdMedian(g.frt)) + '</td>' +
+            '<td class="num">' + fdFmtHrs(fdMedian(g.res)) + '</td>' +
+            '<td class="num">' + (fdMean(g.inter) != null ? (Math.round(fdMean(g.inter) * 10) / 10) : '\u2014') + '</td></tr>';
+        });
+      } else {
+        at += '<tr><td colspan="6" style="color:var(--faint)">No agent column found.</td></tr>';
+      }
+      at += '</tbody>';
+      fdEl('fdAgents').innerHTML = at;
+
+      // Distributions
+      fdEl('fdFrtDist').innerHTML = fdBars(A.frtDist, { color: PALETTE[0] });
+      fdEl('fdResDist').innerHTML = fdBars(A.resDist, { color: PALETTE[2] });
+
+      // Categorical breakdowns
+      var c = A.cols, bd = '';
+      if (c.cStatus) bd += fdRenderBreakdownCard('By status', fdCounts(A.objs, c.cStatus), 0, 'Where tickets currently sit in the workflow. A large open/pending share means work is still in flight. Click a status to see the underlying tickets.', c.cId ? 'status' : null);
+      if (c.cPriority) bd += fdRenderBreakdownCard('By priority', fdCounts(A.objs, c.cPriority), 0, 'The priority mix as set on each ticket. Keep an eye on the share of High and Urgent. Click a priority to see the underlying tickets.', c.cId ? 'priority' : null);
+      if (c.cType) bd += fdRenderBreakdownCard('By type', fdCounts(A.objs, c.cType), 10, 'What kinds of requests came in (top 10 shown). Useful for spotting the dominant categories of work.');
+      if (c.cDept) bd += fdRenderBreakdownCard('By department', fdCounts(A.objs, c.cDept), 0, 'Which internal department the ticket was routed to or owned by.');
+      if (c.cClient) bd += fdRenderBreakdownCard('Top clients', fdCounts(A.objs, c.cClient), 10, 'Which customers/accounts raised the most tickets (top 10). Highlights your heaviest-support relationships.');
+      if (c.cArea) bd += fdRenderBreakdownCard('Top areas of cause', fdCounts(A.objs, c.cArea), 10, 'The tagged root-cause area (top 10) — good for spotting recurring problem areas to fix at the source.');
+      if (c.cUserType) bd += fdRenderBreakdownCard('By user type', fdCounts(A.objs, c.cUserType), 10, 'The role/persona of the person who raised the ticket (e.g. site user, candidate, study manager).');
+      fdEl('fdBreakdowns').innerHTML = bd;
+
+      fdEl('fdReport').classList.remove('hidden');
+    }
+
+    function fdSetStatus(type, msg) {
+      var el = fdEl('fdStatus'); el.className = 'jt-status ' + type; el.textContent = msg; el.classList.remove('hidden');
+    }
+
+    function fdFmtBytes(b) {
+      if (b < 1024) return b + ' B';
+      if (b < 1048576) return (b / 1024).toFixed(1) + ' KB';
+      return (b / 1048576).toFixed(1) + ' MB';
+    }
+
+    function fdHandleFile(file) {
+      fdEl('fdFileName').textContent = file.name;
+      fdEl('fdFileSize').textContent = fdFmtBytes(file.size);
+      fdEl('fdFileInfo').classList.remove('hidden');
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          var objs = fdToObjects(fdParseCSV(e.target.result));
+          var A = fdAnalyze(objs);
+          fdRender(A);
+          fdSetStatus('success', '\u2705 Loaded ' + A.total + ' tickets.');
+        } catch (err) {
+          fdEl('fdReport').classList.add('hidden');
+          fdSetStatus('error', '\u26a0\ufe0f Could not read this CSV: ' + err.message);
+        }
+      };
+      reader.onerror = function () { fdSetStatus('error', '\u26a0\ufe0f Failed to read the file.'); };
+      reader.readAsText(file);
+    }
+
+    function fdReset() {
+      fdEl('fdFileInput').value = '';
+      fdEl('fdFileName').textContent = '';
+      fdEl('fdFileSize').textContent = '';
+      fdEl('fdFileInfo').classList.add('hidden');
+      fdEl('fdStatus').classList.add('hidden');
+      fdEl('fdReport').classList.add('hidden');
+      fdEl('fdKpis').innerHTML = '';
+      fdEl('fdBreakdowns').innerHTML = '';
+      fdEl('fdVolume').innerHTML = '';
+      fdEl('fdAgents').innerHTML = '';
+      fdCurrent = null;
+    }
+
+    // ── Drill-down state ──
+    // dim: the dimension drilled into ('priority' | 'status')
+    // filterDim: the complementary dimension offered as the in-table filter
+    var fdDrill = { dim: 'priority', value: '', filterDim: 'status', rows: [], sortField: 'id', sortDir: 'asc', filterVal: '' };
+
+    // Open a drill-down from a breakdown row. dim is 'priority' or 'status'.
+    // Pre-processes rows, populates the complementary filter, then renders.
+    window.fdOpenDrill = function (dim, value) {
+      if (!fdCurrent) return false;
+      var c = fdCurrent.cols;
+      var primaryCol = dim === 'status' ? c.cStatus : c.cPriority;
+      if (!primaryCol) return false;
+      var wantBlank = (value === '(blank)');
+      var now = new Date();
+
+      var rows = fdCurrent.objs
+        .filter(function (o) {
+          var v = (o[primaryCol] || '').trim();
+          return wantBlank ? !v : (v === value);
+        })
+        .map(function (o) {
+          var tid = (c.cId ? o[c.cId] : '') || '';
+          var idNum = parseInt(String(tid).replace(/[^0-9]/g, ''), 10);
+          var subj = (c.cSubject ? o[c.cSubject] : '') || '';
+          var status = ((c.cStatus ? o[c.cStatus] : '') || '').trim();
+          var priority = ((c.cPriority ? o[c.cPriority] : '') || '').trim();
+
+          var start = c.cCreated ? fdParseTs(o[c.cCreated]) : null;
+          var endTs = c.cClosed ? fdParseTs(o[c.cClosed]) : null;
+          if (!endTs && c.cResolved) endTs = fdParseTs(o[c.cResolved]);
+          var stillOpen = !endTs;
+          var openMs = start ? ((stillOpen ? now : endTs) - start) : null;
+
+          var tagList = ((c.cTags ? o[c.cTags] : '') || '').split(',').map(function (t) { return t.trim(); }).filter(Boolean);
+
+          // JIRA link: only when escalated AND a TBO- key is present
+          var hasEsc = false, tbo = null;
+          for (var ti = 0; ti < tagList.length; ti++) {
+            if (tagList[ti].toLowerCase() === 'jiraescalated') hasEsc = true;
+            if (!tbo && /^TBO-/i.test(tagList[ti])) tbo = tagList[ti];
+          }
+          var jira = (hasEsc && tbo) ? tbo : null;
+
+          return { tid: String(tid).trim(), idNum: isNaN(idNum) ? null : idNum, subj: subj, status: status, priority: priority, openMs: openMs, stillOpen: stillOpen, tags: tagList, jira: jira };
+        });
+
+      var filterDim = dim === 'status' ? 'priority' : 'status';
+      fdDrill.dim = dim;
+      fdDrill.value = value;
+      fdDrill.filterDim = filterDim;
+      fdDrill.rows = rows;
+      fdDrill.filterVal = '';            // reset filter on fresh drill
+      fdDrill.sortField = 'id';
+      fdDrill.sortDir = 'asc';
+
+      // Populate the complementary filter with its distinct values + counts
+      var buckets = {};
+      rows.forEach(function (r) { var k = (filterDim === 'priority' ? r.priority : r.status) || '(blank)'; buckets[k] = (buckets[k] || 0) + 1; });
+      var keys = Object.keys(buckets).sort();
+      var filterLabel = filterDim === 'priority' ? 'Priority' : 'Status';
+      var sel = fdEl('fdFilterSelect');
+      sel.innerHTML = '<option value="">All ' + filterLabel.toLowerCase() + ' (' + rows.length + ')</option>' +
+        keys.map(function (k) { return '<option value="' + fdEsc(k) + '">' + fdEsc(k) + ' (' + buckets[k] + ')</option>'; }).join('');
+      sel.value = '';
+      fdEl('fdFilterLabel').textContent = filterLabel;
+      fdEl('fdSortField').value = 'id';
+      fdEl('fdSortDir').setAttribute('data-dir', 'asc');
+      fdEl('fdSortDirIc').innerHTML = '&#8593;';
+
+      fdEl('fdTicketsTitle').textContent = dim === 'status'
+        ? (value + ' tickets')
+        : (value + ' priority tickets');
+      fdRenderTickets();
+      return true;
+    };
+
+    // Apply current sort + complementary filter and (re)draw the table body.
+    function fdRenderTickets() {
+      var d = fdDrill;
+      var list = d.rows.filter(function (r) {
+        if (!d.filterVal) return true;
+        var v = (d.filterDim === 'priority' ? r.priority : r.status) || '(blank)';
+        return v === d.filterVal;
+      });
+
+      var dir = d.sortDir === 'desc' ? -1 : 1;
+      list.sort(function (a, b) {
+        var av, bv;
+        if (d.sortField === 'open') { av = a.openMs; bv = b.openMs; }
+        else { av = a.idNum; bv = b.idNum; }
+        // nulls always sort last regardless of direction
+        if (av == null && bv == null) return 0;
+        if (av == null) return 1;
+        if (bv == null) return -1;
+        return (av - bv) * dir;
+      });
+
+      var body = '';
+      for (var i = 0; i < list.length; i++) {
+        var r = list[i];
+        var idCell = '\u2014';
+        if (r.tid) {
+          var url = 'https://trialbee.freshdesk.com/a/tickets/' + encodeURIComponent(r.tid);
+          idCell = '<a class="fd-tid-link" href="' + url + '" target="_blank" rel="noopener noreferrer">' + fdEsc(r.tid) + '</a>';
+        }
+        var dur = (r.openMs != null) ? fdDur(r.openMs) : '\u2014';
+        if (r.openMs != null && r.stillOpen) dur += ' <span class="fd-open-flag">(open)</span>';
+        var tagHtml = r.tags.length ? r.tags.map(function (t) { return '<span class="fd-tag">' + fdEsc(t) + '</span>'; }).join('') : '\u2014';
+
+        var jiraCell = '\u2014';
+        if (r.jira) {
+          var jurl = 'https://trialbee.atlassian.net/browse/' + encodeURIComponent(r.jira);
+          jiraCell = '<a class="fd-jira-link" href="' + jurl + '" target="_blank" rel="noopener noreferrer">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7"/><path d="M9 7h8v8"/></svg>' +
+            fdEsc(r.jira) + '</a>';
+        }
+
+        body += '<tr><td>' + idCell + '</td>' +
+          '<td class="fd-td-subj">' + fdEsc(r.subj) + '</td>' +
+          '<td>' + fdEsc(r.status) + '</td>' +
+          '<td>' + dur + '</td>' +
+          '<td>' + jiraCell + '</td>' +
+          '<td class="fd-td-tags">' + tagHtml + '</td></tr>';
+      }
+      if (!list.length) body = '<tr><td colspan="6" style="color:var(--faint)">No tickets match this filter.</td></tr>';
+
+      fdEl('fdTicketsTable').innerHTML =
+        '<thead><tr><th>Ticket ID</th><th>Subject</th><th>Status</th><th>Time open</th><th>JIRA</th><th>Tags</th></tr></thead><tbody>' + body + '</tbody>';
+
+      var shown = list.length, total = d.rows.length;
+      var countTxt = (shown === total) ? (total + (total === 1 ? ' ticket' : ' tickets'))
+        : (shown + ' of ' + total + ' tickets');
+      fdEl('fdTicketsSub').textContent = countTxt + ' \u00b7 click a Ticket ID to open it in Freshdesk';
+    }
+
+    // Wiring
+    var area = fdEl('fdUploadArea'), input = fdEl('fdFileInput');
+    area.addEventListener('click', function () { input.click(); });
+    area.addEventListener('dragover', function (e) { e.preventDefault(); area.classList.add('drag-over'); });
+    area.addEventListener('dragleave', function () { area.classList.remove('drag-over'); });
+    area.addEventListener('drop', function (e) {
+      e.preventDefault(); area.classList.remove('drag-over');
+      var f = e.dataTransfer.files[0]; if (f) fdHandleFile(f);
+    });
+    input.addEventListener('change', function () { if (input.files[0]) fdHandleFile(input.files[0]); });
+    fdEl('fdResetBtn').addEventListener('click', fdReset);
+
+    // Drill-down sort + filter controls
+    fdEl('fdSortField').addEventListener('change', function () { fdDrill.sortField = this.value; fdRenderTickets(); });
+    fdEl('fdFilterSelect').addEventListener('change', function () { fdDrill.filterVal = this.value; fdRenderTickets(); });
+    fdEl('fdSortDir').addEventListener('click', function () {
+      fdDrill.sortDir = (fdDrill.sortDir === 'asc') ? 'desc' : 'asc';
+      this.setAttribute('data-dir', fdDrill.sortDir);
+      fdEl('fdSortDirIc').innerHTML = fdDrill.sortDir === 'asc' ? '&#8593;' : '&#8595;';
+      fdRenderTickets();
+    });
+
+    // Per day / Per week toggle for the volume chart
+    fdEl('fdVolMode').addEventListener('click', function (e) {
+      var btn = e.target.closest('.fd-seg-btn');
+      if (!btn) return;
+      var mode = btn.getAttribute('data-mode');
+      if (mode === fdMode) return;
+      fdMode = mode;
+      var btns = this.querySelectorAll('.fd-seg-btn');
+      Array.prototype.forEach.call(btns, function (b) { b.classList.toggle('active', b === btn); });
+      fdRenderVolume();
+    });
   })();
 
 
