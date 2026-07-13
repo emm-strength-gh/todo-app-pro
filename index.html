@@ -648,6 +648,21 @@
   html[data-theme="dark"] .fd-bar-row.fd-clickable:hover, html[data-theme="dark"] .fd-bar-row.fd-clickable:focus-visible { background: rgba(107,191,163,.12); }
   .fd-bar-row.fd-clickable .fd-bar-label::after { content: " \203a"; color: var(--faint); }
 
+  /* Expandable roll-up groups (areas of cause) */
+  .fd-group { display: block; }
+  .fd-group > summary { cursor: pointer; list-style: none; }
+  .fd-group > summary::-webkit-details-marker { display: none; }
+  .fd-group > summary::marker { content: ""; }
+  .fd-group-sum { border-radius: 6px; padding: 3px 6px; margin: 0 -6px; }
+  .fd-group-sum:hover { background: rgba(46,90,78,.07); }
+  html[data-theme="dark"] .fd-group-sum:hover { background: rgba(107,191,163,.12); }
+  .fd-group-sum .fd-bar-label { font-weight: 600; }
+  .fd-caret { display: inline-flex; align-items: center; justify-content: center; width: 12px; margin-right: 4px; font-size: 9px; color: var(--muted); transition: transform .15s; }
+  .fd-group[open] > summary .fd-caret { transform: rotate(90deg); }
+  .fd-group-children { display: flex; flex-direction: column; gap: 8px; margin: 8px 0 4px; padding-left: 16px; border-left: 2px solid var(--border); }
+  .fd-child .fd-bar-label { color: var(--muted); font-size: 12.5px; }
+  .fd-child .fd-bar-track { height: 15px; }
+
   /* Tickets drill-down table */
   .fd-tickets-table td.fd-td-subj { white-space: normal; min-width: 220px; max-width: 420px; }
   .fd-tickets-table td.fd-td-tags { white-space: normal; max-width: 260px; }
@@ -673,6 +688,23 @@
   html[data-theme="dark"] .fd-jira-link { background: rgba(56,139,255,.20); color: #9cc4ff; border-color: rgba(56,139,255,.45); }
   html[data-theme="dark"] .fd-jira-link:hover { background: rgba(56,139,255,.32); box-shadow: none; }
   .fd-open-flag { color: var(--faint); font-size: 11.5px; }
+
+  /* Customer satisfaction (survey) */
+  .fd-survey-summary { font-size: 13px; color: var(--muted); margin-bottom: 14px; }
+  .fd-survey-summary b { color: var(--ink); font-weight: 700; }
+  .fd-survey-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-bottom: 16px; }
+  .fd-survey-chip { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .fd-survey-chip i { width: 11px; height: 11px; border-radius: 3px; display: inline-block; flex: none; }
+  .fd-survey-rows { display: flex; flex-direction: column; gap: 11px; }
+  .fd-survey-row { display: grid; grid-template-columns: 90px 1fr 132px; align-items: center; gap: 12px; font-size: 13px; }
+  .fd-survey-plabel { color: var(--ink); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .fd-stack { display: flex; height: 20px; border-radius: 6px; overflow: hidden; background: var(--track, rgba(0,0,0,.06)); }
+  html[data-theme="dark"] .fd-stack { background: rgba(255,255,255,.07); }
+  .fd-stack-seg { height: 100%; min-width: 0; }
+  .fd-stack.is-empty { position: relative; }
+  .fd-survey-meta { text-align: right; color: var(--muted); font-variant-numeric: tabular-nums; font-size: 12.5px; }
+  .fd-survey-meta .none { color: var(--faint); }
+  .fd-survey-score { font-weight: 700; color: var(--ink); }
 
   /* Drill-down sort/filter controls */
   .fd-drill-controls { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; }
@@ -1063,6 +1095,16 @@
               </details>
               <div class="fd-bars" id="fdResDist"></div>
             </div>
+          </div>
+
+          <!-- Customer satisfaction (survey), per priority -->
+          <div class="jt-card" id="fdSurveyCard">
+            <p class="jt-card-label">Customer satisfaction &mdash; survey by priority</p>
+            <details class="fd-desc">
+              <summary>What this shows</summary>
+              <p>Survey ratings on the 5-point scale (Excellent &rarr; Below Expectations), broken down by ticket priority. Only tickets the customer actually rated are counted, so each row also shows the <b>response rate</b>. The average score maps Excellent = 5 down to Below Expectations = 1.</p>
+            </details>
+            <div id="fdSurvey"></div>
           </div>
 
           <!-- Categorical breakdowns -->
@@ -2385,9 +2427,11 @@
 
   // ---------- View switching ----------
   var currentView = "overview";
+  var SESSION_KEY = "busybee_session_v1";
   function show(view) {
     if (view === "home") view = "overview";
     currentView = view;
+    try { localStorage.setItem(SESSION_KEY, JSON.stringify({ view: currentView })); } catch (e) {}
     $("searchInput").value = ""; runSearch(); // clear any active search on navigation
     $("overviewView").classList.toggle("active", view === "overview");
     $("listView").classList.toggle("active", view === "list");
@@ -2533,12 +2577,22 @@
       if (window.fdOpenDrill && window.fdOpenDrill(dim, val)) show("fd-tickets");
     }
     $("fdBreakdowns").addEventListener("click", function (e) {
-      openDrill(e.target.closest('.fd-bar-row[data-fd-drill]'));
+      var row = e.target.closest('.fd-bar-row[data-fd-drill]');
+      if (!row) return;
+      // On a roll-up group summary, the ▸ arrow is reserved for expand/collapse;
+      // clicking anywhere else drills the whole group (so stop the native toggle).
+      if (row.tagName === "SUMMARY") {
+        if (e.target.closest('.fd-caret')) return; // let <details> toggle
+        e.preventDefault();
+      }
+      openDrill(row);
     });
     $("fdBreakdowns").addEventListener("keydown", function (e) {
       if (e.key !== "Enter" && e.key !== " ") return;
       var row = e.target.closest('.fd-bar-row[data-fd-drill]');
-      if (row) { e.preventDefault(); openDrill(row); }
+      if (!row || row.tagName === "SUMMARY") return; // summaries toggle natively via keyboard
+      e.preventDefault();
+      openDrill(row);
     });
   })();
   $("navAddList").addEventListener("click", openAddModal);
@@ -2658,7 +2712,17 @@
   initNoteEditor();
   resetDailies();
   updateDate();
-  show("overview");
+  // Restore the last view the user was on (only views that don't depend on
+  // transient per-session state like an open list, note, or drill-down).
+  var initialView = "overview";
+  try {
+    var sess = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
+    if (sess && sess.view) {
+      var v = (sess.view === "fd-tickets") ? "freshdesk" : sess.view;
+      if (["overview", "json", "json-csv", "json-stitch", "freshdesk"].indexOf(v) !== -1) initialView = v;
+    }
+  } catch (e) {}
+  show(initialView);
   renderSidebar();
   renderOverview();
   renderCounters();
@@ -3014,8 +3078,29 @@
   (function () {
     function fdEl(id) { return document.getElementById(id); }
     var PALETTE = ['#2e5a4e', '#b07c12', '#3d7a8c', '#8c5a3d', '#5a6e2e', '#6b4a8c', '#a03d5a', '#3d8c6b'];
+    // 5-point CSAT scale (matches the Freshdesk survey setup): best -> worst.
+    var FD_SCALE = [
+      { key: 'Excellent', color: '#3b6fd4', score: 5 },
+      { key: 'Good', color: '#5a9bf5', score: 4 },
+      { key: 'Okay', color: '#f0b429', score: 3 },
+      { key: 'Needs Improvement', color: '#b5652d', score: 2 },
+      { key: 'Below Expectations', color: '#e2685f', score: 1 }
+    ];
+    var FD_OTHER_COLOR = '#9aa0a6';
+    var FD_PRI_RANK = { 'urgent': 0, 'high': 1, 'medium': 2, 'low': 3 };
     var fdCurrent = null;   // last analysed dataset (for re-rendering on toggle)
     var fdMode = 'day';     // 'day' | 'week' for the volume chart
+    var fdSavedCsv = null;  // raw CSV text of the loaded report (for session restore)
+    var fdSavedName = '';
+    var FD_KEY = 'busybee_fd_v1';
+
+    // Persist (or clear) the loaded report so an accidental close doesn't lose it.
+    function fdPersist() {
+      try {
+        if (fdSavedCsv == null) { localStorage.removeItem(FD_KEY); return; }
+        localStorage.setItem(FD_KEY, JSON.stringify({ csv: fdSavedCsv, name: fdSavedName, mode: fdMode }));
+      } catch (e) { /* quota exceeded or storage disabled — keep working in-memory */ }
+    }
 
     // Robust CSV parser: handles quoted fields, escaped quotes, and newlines in quotes.
     function fdParseCSV(text) {
@@ -3150,6 +3235,74 @@
       return '<div class="jt-card"><p class="jt-card-label">' + fdEsc(title) + '</p>' +
         (desc ? '<details class="fd-desc"><summary>What this shows</summary><p>' + fdEsc(desc) + '</p></details>' : '') +
         '<div class="fd-bars">' + fdBars(shown, { drill: drill }) + '</div>' +
+        (extra ? '<p class="jt-sub" style="margin-top:10px;">+ ' + extra + ' more</p>' : '') + '</div>';
+    }
+
+    // Areas of cause, with two roll-up groups that expand to their members.
+    var FD_AREA_GROUPS = [
+      { name: 'Login Assistance', members: ['Login Issue', 'Access Request', 'Account Activation', 'Multi-Factor Authentication', 'Reset Passwords', 'Permissions'] },
+      { name: 'Twilio & Email Service', members: ['Proxy / Twilio / SMS', 'Messaging', 'Browser Call Quality Video/Audio', 'Email Service'] },
+      { name: 'Questions & User Training', members: ['Question from Users', 'Question from Candidates', 'Honey Usage / Training'] },
+      { name: 'Candidates Module & Usability', members: ['Postal Codes', 'Candidate Module', 'UI / UX / Usability', 'Dialogs'] },
+      { name: 'Study Settings', members: ['Study Settings / Config', 'Study/Program User Settings', 'Prescreener / Self-assessment', 'Locales / Languages / Translations'] },
+      { name: 'Reporting', members: ['Data Studio / Google Sheets', 'API / DB query', 'Analytics / Dashboard / Insights', 'Reporting'] }
+    ];
+
+    function fdRenderAreasCard(A, desc, limit) {
+      var raw = fdCounts(A.objs, A.cols.cArea); // [[key,count], ...] desc
+
+      var memberOf = {};
+      FD_AREA_GROUPS.forEach(function (g) { g.members.forEach(function (m) { memberOf[m.toLowerCase()] = g.name; }); });
+
+      var gdata = {}; FD_AREA_GROUPS.forEach(function (g) { gdata[g.name] = { total: 0, children: [] }; });
+      var singles = [];
+      raw.forEach(function (p) {
+        var gn = memberOf[p[0].toLowerCase()];
+        if (gn) { gdata[gn].total += p[1]; gdata[gn].children.push(p); }
+        else singles.push(p);
+      });
+
+      var top = [];
+      FD_AREA_GROUPS.forEach(function (g) {
+        var d = gdata[g.name];
+        if (d.total > 0) top.push({ type: 'group', name: g.name, count: d.total, children: d.children });
+      });
+      singles.forEach(function (p) { top.push({ type: 'single', name: p[0], count: p[1] }); });
+      top.sort(function (a, b) { return b.count - a.count; });
+
+      var LIM = limit || 10;
+      var extra = top.length > LIM ? top.length - LIM : 0;
+      var shown = top.slice(0, LIM);
+
+      var max = 0; shown.forEach(function (t) { if (t.count > max) max = t.count; });
+      if (!max) max = 1;
+
+      function inner(label, count, color, caret) {
+        var pct = Math.round(count / max * 100);
+        return '<span class="fd-bar-label" title="' + fdEsc(label) + '">' +
+          (caret ? '<span class="fd-caret" aria-hidden="true">\u25b8</span>' : '') + fdEsc(label) + '</span>' +
+          '<span class="fd-bar-track"><span class="fd-bar-fill" style="width:' + pct + '%;background:' + color + '"></span></span>' +
+          '<span class="fd-bar-val">' + count + '</span>';
+      }
+
+      var rows = '', ci = 0;
+      shown.forEach(function (t) {
+        var color = PALETTE[ci % PALETTE.length]; ci++;
+        if (t.type === 'group') {
+          var kids = t.children.slice().sort(function (a, b) { return b[1] - a[1]; }).map(function (ch) {
+            return '<div class="fd-bar-row fd-child fd-clickable" role="button" tabindex="0" data-fd-drill="area" data-fd-value="' + fdEsc(ch[0]) + '">' + inner(ch[0], ch[1], color, false) + '</div>';
+          }).join('');
+          rows += '<details class="fd-group">' +
+            '<summary class="fd-bar-row fd-group-sum" data-fd-drill="areaGroup" data-fd-value="' + fdEsc(t.name) + '">' + inner(t.name, t.count, color, true) + '</summary>' +
+            '<div class="fd-group-children">' + kids + '</div></details>';
+        } else {
+          rows += '<div class="fd-bar-row fd-clickable" role="button" tabindex="0" data-fd-drill="area" data-fd-value="' + fdEsc(t.name) + '">' + inner(t.name, t.count, color, false) + '</div>';
+        }
+      });
+
+      return '<div class="jt-card"><p class="jt-card-label">Top areas of cause</p>' +
+        (desc ? '<details class="fd-desc"><summary>What this shows</summary><p>' + fdEsc(desc) + '</p></details>' : '') +
+        '<div class="fd-bars">' + rows + '</div>' +
         (extra ? '<p class="jt-sub" style="margin-top:10px;">+ ' + extra + ' more</p>' : '') + '</div>';
     }
 
@@ -3341,11 +3494,98 @@
       if (c.cType) bd += fdRenderBreakdownCard('By type', fdCounts(A.objs, c.cType), 10, 'What kinds of requests came in (top 10 shown). Useful for spotting the dominant categories of work.');
       if (c.cDept) bd += fdRenderBreakdownCard('By department', fdCounts(A.objs, c.cDept), 0, 'Which internal department the ticket was routed to or owned by.');
       if (c.cClient) bd += fdRenderBreakdownCard('Top clients', fdCounts(A.objs, c.cClient), 10, 'Which customers/accounts raised the most tickets (top 10). Highlights your heaviest-support relationships.');
-      if (c.cArea) bd += fdRenderBreakdownCard('Top areas of cause', fdCounts(A.objs, c.cArea), 10, 'The tagged root-cause area (top 10) — good for spotting recurring problem areas to fix at the source.');
+      if (c.cArea) bd += fdRenderAreasCard(A, 'The tagged root-cause area. Related causes roll up into groups (Login Assistance, Twilio & Email Service, Questions & User Training, Candidates Module & Usability, Study Settings, Reporting). Click any row to see its tickets; on a group, click the row for all its tickets or the \u25b8 arrow to expand its individual causes.', 20);
       if (c.cUserType) bd += fdRenderBreakdownCard('By user type', fdCounts(A.objs, c.cUserType), 10, 'The role/persona of the person who raised the ticket (e.g. site user, candidate, study manager).');
       fdEl('fdBreakdowns').innerHTML = bd;
 
+      fdRenderSurvey(A);
+
       fdEl('fdReport').classList.remove('hidden');
+    }
+
+    // Customer satisfaction: 5-point survey ratings broken down per priority.
+    function fdRenderSurvey(A) {
+      var c = A.cols;
+      var host = fdEl('fdSurvey');
+      var card = fdEl('fdSurveyCard');
+      if (!c.cSurvey) { if (card) card.classList.add('hidden'); return; }
+      if (card) card.classList.remove('hidden');
+
+      function classify(v) {
+        v = (v || '').trim();
+        if (!v) return null; // no response
+        for (var i = 0; i < FD_SCALE.length; i++) {
+          if (FD_SCALE[i].key.toLowerCase() === v.toLowerCase()) return FD_SCALE[i].key;
+        }
+        return '__other__';
+      }
+
+      // Group by priority -> { key(scale or __other__): count }, plus totals
+      var byPri = {}, order = [];
+      var totResp = 0, totScore = 0, totScored = 0, totTickets = A.objs.length;
+      for (var i = 0; i < A.objs.length; i++) {
+        var o = A.objs[i];
+        var pri = ((c.cPriority ? o[c.cPriority] : '') || '').trim() || '(blank)';
+        if (!byPri[pri]) { byPri[pri] = { total: 0, resp: 0, counts: {}, scoreSum: 0, scoreN: 0 }; order.push(pri); }
+        var g = byPri[pri];
+        g.total++;
+        var cls = classify(c.cSurvey ? o[c.cSurvey] : '');
+        if (cls) {
+          g.resp++; totResp++;
+          g.counts[cls] = (g.counts[cls] || 0) + 1;
+          for (var s = 0; s < FD_SCALE.length; s++) {
+            if (FD_SCALE[s].key === cls) { g.scoreSum += FD_SCALE[s].score; g.scoreN++; totScore += FD_SCALE[s].score; totScored++; break; }
+          }
+        }
+      }
+
+      // Sort priorities: known severity order first, then others alpha, (blank) last
+      order.sort(function (a, b) {
+        var ra = FD_PRI_RANK[a.toLowerCase()], rb = FD_PRI_RANK[b.toLowerCase()];
+        if (ra != null && rb != null) return ra - rb;
+        if (ra != null) return -1;
+        if (rb != null) return 1;
+        if (a === '(blank)') return 1;
+        if (b === '(blank)') return -1;
+        return a.localeCompare(b);
+      });
+
+      // Summary line
+      var rate = totTickets ? Math.round(totResp / totTickets * 100) : 0;
+      var avg = totScored ? (Math.round(totScore / totScored * 100) / 100) : null;
+      var summary = '<div class="fd-survey-summary"><b>' + totResp + '</b> of <b>' + totTickets +
+        '</b> tickets rated (<b>' + rate + '%</b> response rate)' +
+        (avg != null ? ' \u00b7 average score <span class="fd-survey-score">' + avg + ' / 5</span>' : '') + '</div>';
+
+      // Legend
+      var legend = '<div class="fd-survey-legend">' + FD_SCALE.map(function (sc) {
+        return '<span class="fd-survey-chip"><i style="background:' + sc.color + '"></i>' + fdEsc(sc.key) + '</span>';
+      }).join('') + '</div>';
+
+      // Rows
+      var rowsHtml = order.map(function (pri) {
+        var g = byPri[pri];
+        var bar, meta;
+        if (g.resp === 0) {
+          bar = '<span class="fd-stack is-empty"></span>';
+          meta = '<span class="none">no responses</span>';
+        } else {
+          var segs = '';
+          FD_SCALE.forEach(function (sc) {
+            var n = g.counts[sc.key] || 0;
+            if (n > 0) segs += '<span class="fd-stack-seg" style="flex-grow:' + n + ';background:' + sc.color + '" title="' + fdEsc(sc.key) + ': ' + n + '"></span>';
+          });
+          if (g.counts['__other__']) segs += '<span class="fd-stack-seg" style="flex-grow:' + g.counts['__other__'] + ';background:' + FD_OTHER_COLOR + '" title="Other: ' + g.counts['__other__'] + '"></span>';
+          bar = '<span class="fd-stack">' + segs + '</span>';
+          var pr = g.total ? Math.round(g.resp / g.total * 100) : 0;
+          var gAvg = g.scoreN ? (Math.round(g.scoreSum / g.scoreN * 10) / 10) : null;
+          meta = g.resp + ' rated \u00b7 ' + pr + '%' + (gAvg != null ? ' \u00b7 ' + gAvg + '/5' : '');
+        }
+        return '<div class="fd-survey-row"><span class="fd-survey-plabel" title="' + fdEsc(pri) + '">' + fdEsc(pri) +
+          '</span>' + bar + '<span class="fd-survey-meta">' + meta + '</span></div>';
+      }).join('');
+
+      host.innerHTML = summary + legend + '<div class="fd-survey-rows">' + rowsHtml + '</div>';
     }
 
     function fdSetStatus(type, msg) {
@@ -3365,9 +3605,12 @@
       var reader = new FileReader();
       reader.onload = function (e) {
         try {
-          var objs = fdToObjects(fdParseCSV(e.target.result));
+          var text = e.target.result;
+          var objs = fdToObjects(fdParseCSV(text));
           var A = fdAnalyze(objs);
           fdRender(A);
+          fdSavedCsv = text; fdSavedName = file.name;
+          fdPersist();
           fdSetStatus('success', '\u2705 Loaded ' + A.total + ' tickets.');
         } catch (err) {
           fdEl('fdReport').classList.add('hidden');
@@ -3390,6 +3633,8 @@
       fdEl('fdVolume').innerHTML = '';
       fdEl('fdAgents').innerHTML = '';
       fdCurrent = null;
+      fdSavedCsv = null; fdSavedName = '';
+      fdPersist();
     }
 
     // ── Drill-down state ──
@@ -3402,16 +3647,30 @@
     window.fdOpenDrill = function (dim, value) {
       if (!fdCurrent) return false;
       var c = fdCurrent.cols;
-      var primaryCol = dim === 'status' ? c.cStatus : c.cPriority;
-      if (!primaryCol) return false;
-      var wantBlank = (value === '(blank)');
       var now = new Date();
 
+      // Build the row predicate for the drilled dimension.
+      var predicate;
+      if (dim === 'area') {
+        if (!c.cArea) return false;
+        var wantBlankA = (value === '(blank)');
+        predicate = function (o) { var v = (o[c.cArea] || '').trim(); return wantBlankA ? !v : (v === value); };
+      } else if (dim === 'areaGroup') {
+        if (!c.cArea) return false;
+        var grp = null;
+        for (var gi = 0; gi < FD_AREA_GROUPS.length; gi++) { if (FD_AREA_GROUPS[gi].name === value) { grp = FD_AREA_GROUPS[gi]; break; } }
+        if (!grp) return false;
+        var memberSet = {}; grp.members.forEach(function (m) { memberSet[m.toLowerCase()] = true; });
+        predicate = function (o) { return !!memberSet[((o[c.cArea] || '').trim()).toLowerCase()]; };
+      } else {
+        var primaryCol = dim === 'status' ? c.cStatus : c.cPriority;
+        if (!primaryCol) return false;
+        var wantBlank = (value === '(blank)');
+        predicate = function (o) { var v = (o[primaryCol] || '').trim(); return wantBlank ? !v : (v === value); };
+      }
+
       var rows = fdCurrent.objs
-        .filter(function (o) {
-          var v = (o[primaryCol] || '').trim();
-          return wantBlank ? !v : (v === value);
-        })
+        .filter(predicate)
         .map(function (o) {
           var tid = (c.cId ? o[c.cId] : '') || '';
           var idNum = parseInt(String(tid).replace(/[^0-9]/g, ''), 10);
@@ -3461,9 +3720,9 @@
       fdEl('fdSortDir').setAttribute('data-dir', 'asc');
       fdEl('fdSortDirIc').innerHTML = '&#8593;';
 
-      fdEl('fdTicketsTitle').textContent = dim === 'status'
-        ? (value + ' tickets')
-        : (value + ' priority tickets');
+      fdEl('fdTicketsTitle').textContent = (dim === 'priority')
+        ? (value + ' priority tickets')
+        : (value + ' tickets');
       fdRenderTickets();
       return true;
     };
@@ -3559,7 +3818,35 @@
       var btns = this.querySelectorAll('.fd-seg-btn');
       Array.prototype.forEach.call(btns, function (b) { b.classList.toggle('active', b === btn); });
       fdRenderVolume();
+      fdPersist();
     });
+
+    // Restore a previously-loaded report so an accidental close doesn't lose it.
+    (function fdRestore() {
+      var raw;
+      try { raw = localStorage.getItem(FD_KEY); } catch (e) { return; }
+      if (!raw) return;
+      try {
+        var saved = JSON.parse(raw);
+        if (!saved || !saved.csv) return;
+        fdSavedCsv = saved.csv;
+        fdSavedName = saved.name || 'freshdesk.csv';
+        if (saved.mode === 'week' || saved.mode === 'day') fdMode = saved.mode;
+
+        var A = fdAnalyze(fdToObjects(fdParseCSV(fdSavedCsv)));
+        fdRender(A);
+
+        fdEl('fdFileName').textContent = fdSavedName;
+        fdEl('fdFileSize').textContent = fdFmtBytes(fdSavedCsv.length);
+        fdEl('fdFileInfo').classList.remove('hidden');
+        fdSetStatus('success', '\u2705 Restored ' + A.total + ' tickets from your last session.');
+
+        var btns = fdEl('fdVolMode').querySelectorAll('.fd-seg-btn');
+        Array.prototype.forEach.call(btns, function (b) { b.classList.toggle('active', b.getAttribute('data-mode') === fdMode); });
+      } catch (e) {
+        try { localStorage.removeItem(FD_KEY); } catch (e2) {}
+      }
+    })();
   })();
 
 
