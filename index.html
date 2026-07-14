@@ -4212,25 +4212,76 @@
       });
     }
 
-    jEl('jiraRefreshBtn').addEventListener('click', async function () {
-      if (!(window.cowork && typeof window.cowork.callMcpTool === 'function')) {
-        jSetStatus('error', 'Live refresh needs the Jira connector, which is available when this app runs in Cowork. Showing the last snapshot (' + TICKETS.length + ' tickets).');
-        return;
+    // Static-host data source (e.g. GitHub Pages): a same-origin JSON file kept
+    // fresh by a backend that holds the Jira credentials (a scheduled GitHub
+    // Action, or a serverless proxy). Override with window.JIRA_DATA_URL if needed.
+    var JIRA_DATA_URL = (typeof window !== 'undefined' && window.JIRA_DATA_URL) || 'jira-tickets.json';
+
+    function normalizeTicket(n) {
+      if (n && n.fields) { // raw Jira issue node
+        var f = n.fields, dr = f.description;
+        var ds = typeof dr === 'string' ? dr : (dr ? JSON.stringify(dr) : '');
+        var mm = ds.match(/FD\s*#\s*(\d+)/i);
+        return {
+          key: n.key, fd: mm ? mm[1] : 'N/A', summary: f.summary || '',
+          status: (f.status && f.status.name) || 'Unknown',
+          cat: (f.status && f.status.statusCategory && f.status.statusCategory.name) || 'To Do',
+          priority: (f.priority && f.priority.name) || 'None',
+          type: (f.issuetype && f.issuetype.name) || '', created: f.created || null
+        };
       }
-      var btn = this; btn.disabled = true; btn.textContent = '\u2026 Refreshing';
-      jHideStatus();
+      // already-flat shape
+      return {
+        key: n.key || '', fd: n.fd || 'N/A', summary: n.summary || '',
+        status: n.status || 'Unknown', cat: n.cat || 'To Do',
+        priority: n.priority || 'None', type: n.type || '', created: n.created || null
+      };
+    }
+
+    async function loadFromUrl(url) {
+      var res = await fetch(url, { cache: 'no-store' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      var data = await res.json();
+      var arr = Array.isArray(data) ? data
+        : (data.tickets || (data.issues && data.issues.nodes) || data.issues || []);
+      if (!Array.isArray(arr)) throw new Error('Unexpected JSON shape');
+      return arr.map(normalizeTicket);
+    }
+
+    jEl('jiraRefreshBtn').addEventListener('click', async function () {
+      var btn = this; btn.disabled = true; btn.textContent = '\u2026 Refreshing'; jHideStatus();
       try {
-        var data = await fetchLive();
+        var data, src;
+        if (window.cowork && typeof window.cowork.callMcpTool === 'function') {
+          data = await fetchLive(); src = 'Jira (live)';
+        } else {
+          data = await loadFromUrl(JIRA_DATA_URL); src = 'published data';
+        }
         RAW = data;
         fStatus = {}; fPri = {}; jSearch = ''; jEl('jiraSearch').value = '';
         renderAll();
         jEl('jiraSub').textContent = 'Open tickets labeled Support-ticket \u00b7 DevTeam (TBO) \u00b7 ' + RAW.length + ' open \u00b7 updated ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        jSetStatus('success', 'Refreshed ' + RAW.length + ' open tickets from Jira.');
+        jSetStatus('success', 'Refreshed ' + RAW.length + ' open tickets from ' + src + '.');
       } catch (err) {
-        jSetStatus('error', 'Could not refresh from Jira: ' + (err && err.message ? err.message : err));
+        var m = (err && err.message) ? err.message : String(err);
+        if (!(window.cowork && window.cowork.callMcpTool)) {
+          jSetStatus('error', 'No live source available. Publish a sanitized "' + JIRA_DATA_URL + '" next to this page (via a scheduled GitHub Action or serverless proxy that holds the Jira token) and Refresh will load it. Showing the snapshot (' + TICKETS.length + ' tickets). [' + m + ']');
+        } else {
+          jSetStatus('error', 'Could not refresh from Jira: ' + m);
+        }
       }
       btn.disabled = false; btn.innerHTML = '&#8635; Refresh';
     });
+
+    // On open, silently try the published data file; keep the snapshot if absent.
+    (function autoLoad() {
+      if (window.cowork && window.cowork.callMcpTool) return; // Cowork uses live refresh instead
+      loadFromUrl(JIRA_DATA_URL).then(function (data) {
+        if (!data || !data.length) return;
+        RAW = data; renderAll();
+        jEl('jiraSub').textContent = 'Open tickets labeled Support-ticket \u00b7 DevTeam (TBO) \u00b7 ' + RAW.length + ' open \u00b7 published data';
+      }).catch(function () { /* no published file — keep snapshot silently */ });
+    })();
 
     jEl('jiraSub').textContent = 'Open tickets labeled Support-ticket \u00b7 DevTeam (TBO) \u00b7 ' + RAW.length + ' open \u00b7 snapshot';
     renderAll();

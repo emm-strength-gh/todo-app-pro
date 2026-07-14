@@ -1,0 +1,312 @@
+[
+  {
+    "key": "TBO-12714",
+    "fd": "N/A",
+    "summary": "distance to site exports in unknown units",
+    "status": "Backlog",
+    "cat": "To Do",
+    "priority": "Medium",
+    "type": "Bug",
+    "created": "2026-06-12T21:14:03.485+0200"
+  },
+  {
+    "key": "TBO-12707",
+    "fd": "N/A",
+    "summary": "Mentor GLOW Study | SMS Report Error",
+    "status": "Backlog",
+    "cat": "To Do",
+    "priority": "High",
+    "type": "Service Request",
+    "created": "2026-06-12T14:34:14.560+0200"
+  },
+  {
+    "key": "TBO-12658",
+    "fd": "N/A",
+    "summary": "Fw: GZMR | candidate follow-up",
+    "status": "Backlog",
+    "cat": "To Do",
+    "priority": "Medium",
+    "type": "Bug",
+    "created": "2026-06-09T21:40:26.271+0200"
+  },
+  {
+    "key": "TBO-12642",
+    "fd": "N/A",
+    "summary": "Requesting study dashboard metrics after close-out",
+    "status": "Backlog",
+    "cat": "To Do",
+    "priority": "Low",
+    "type": "Service Request",
+    "created": "2026-06-05T20:59:01.860+0200"
+  },
+  {
+    "key": "TBO-12628",
+    "fd": "N/A",
+    "summary": "GZMR-19977 and GZMR-13502 were MR qualified but site assignment wasn't updated",
+    "status": "Backlog",
+    "cat": "To Do",
+    "priority": "Low",
+    "type": "Bug",
+    "created": "2026-06-03T21:39:10.115+0200"
+  },
+  {
+    "key": "TBO-12627",
+    "fd": "N/A",
+    "summary": "Issue exporting answers in Honey",
+    "status": "Backlog",
+    "cat": "To Do",
+    "priority": "High",
+    "type": "Bug",
+    "created": "2026-06-03T15:06:46.202+0200"
+  },
+  {
+    "key": "TBO-12594",
+    "fd": "N/A",
+    "summary": "No test emails coming through",
+    "status": "Backlog",
+    "cat": "To Do",
+    "priority": "Low",
+    "type": "Bug",
+    "created": "2026-06-01T17:19:29.904+0200"
+  },
+  {
+    "key": "TBO-12544",
+    "fd": "N/A",
+    "summary": "Bug: Reminder not on reports",
+    "status": "Backlog",
+    "cat": "To Do",
+    "priority": "Low",
+    "type": "Bug",
+    "created": "2026-05-26T21:26:08.924+0200"
+  },
+  {
+    "key": "TBO-12543",
+    "fd": "N/A",
+    "summary": "Consideration: Label change from Comment to Note",
+    "status": "Backlog",
+    "cat": "To Do",
+    "priority": "Low",
+    "type": "Service Request",
+    "created": "2026-05-26T17:57:46.629+0200"
+  },
+  {
+    "key": "TBO-12540",
+    "fd": "N/A",
+    "summary": "Site User Honey Access",
+    "status": "Backlog",
+    "cat": "To Do",
+    "priority": "Low",
+    "type": "Bug",
+    "created": "2026-05-26T14:43:26.898+0200"
+  },
+  {
+    "key": "TBO-12514",
+    "fd": "N/A",
+    "summary": "Potential bug in system_gender question",
+    "status": "Backlog",
+    "cat": "To Do",
+    "priority": "Low",
+    "type": "Bug",
+    "created": "2026-05-20T15:12:59.086+0200"
+  },
+  {
+    "key": "TBO-12490",
+    "fd": "N/A",
+    "summary": "Boolean Yes/No visibility logic does not reveal questions as set",
+    "status": "Backlog",
+    "cat": "To Do",
+    "priority": "Medium",
+    "type": "Bug",
+    "created": "2026-05-14T13:15:31.266+0200"
+  },
+  {
+    "key": "TBO-12419",
+    "fd": "N/A",
+    "summary": "Run UAT with Nathan (Gustaf/Nathan)",
+    "status": "Backlog",
+    "cat": "To Do",
+    "priority": "Low",
+    "type": "Sub-Task",
+    "created": "2026-05-04T10:11:44.689+0200"
+  },
+  {
+    "key": "TBO-12363",
+    "fd": "N/A",
+    "summary": "Verify that Comprehend is working in all non-prod environment",
+    "status": "Backlog",
+    "cat": "To Do",
+    "priority": "Low",
+    "type": "Sub-Task",
+    "created": "2026-04-28T10:00:29.385+0200"
+  },
+  {
+    "key": "TBO-12362",
+    "fd": "N/A",
+    "summary": "Verify that Comprehend is working in prod",
+    "status": "Backlog",
+    "cat": "To Do",
+    "priority": "Low",
+    "type": "Sub-Task",
+    "created": "2026-04-28T09:59:59.509+0200"
+  },
+  {
+    "key": "TBO-12361",
+    "fd": "N/A",
+    "summary": "Verify that replay functionality is working (and part of IaC)",
+    "status": "Backlog",
+    "cat": "To Do",
+    "priority": "Low",
+    "type": "Sub-Task",
+    "created": "2026-04-28T09:59:47.603+0200"
+  },
+  {
+    "key": "TBO-12360",
+    "fd": "N/A",
+    "summary": "Honey Comment Censorship issue (Comprehend)",
+    "status": "Backlog",
+    "cat": "To Do",
+    "priority": "High",
+    "type": "Bug",
+    "created": "2026-04-28T09:59:09.777+0200"
+  },
+  {
+    "key": "TBO-12321",
+    "fd": "N/A",
+    "summary": "Takeda | MarsLight-11 | Node-RED automation Set-up (Mid May)",
+    "status": "Need more info",
+    "cat": "To Do",
+    "priority": "Low",
+    "type": "Service Request",
+    "created": "2026-04-23T16:40:59.994+0200"
+  },
+  {
+    "key": "TBO-12097",
+    "fd": "N/A",
+    "summary": "Handle webhook from Node-RED and run requested automation",
+    "status": "In Code Review",
+    "cat": "In Progress",
+    "priority": "Low",
+    "type": "Sub-Task",
+    "created": "2026-04-13T15:17:32.036+0200"
+  },
+  {
+    "key": "TBO-12096",
+    "fd": "N/A",
+    "summary": "Convert AMQP-events using Node-RED running in Docker Swarm to webhooks",
+    "status": "In Code Review",
+    "cat": "In Progress",
+    "priority": "Low",
+    "type": "Sub-Task",
+    "created": "2026-04-13T14:52:07.215+0200"
+  },
+  {
+    "key": "TBO-12086",
+    "fd": "N/A",
+    "summary": "Axsome FORWARD and CLARITY Tag Automation Request",
+    "status": "In Code Review",
+    "cat": "In Progress",
+    "priority": "Medium",
+    "type": "Service Request",
+    "created": "2026-04-10T19:06:23.204+0200"
+  },
+  {
+    "key": "TBO-12028",
+    "fd": "N/A",
+    "summary": "Allow user email address editing in global admin",
+    "status": "Backlog",
+    "cat": "To Do",
+    "priority": "Low",
+    "type": "Story",
+    "created": "2026-04-01T11:03:44.091+0200"
+  },
+  {
+    "key": "TBO-11949",
+    "fd": "N/A",
+    "summary": "Reset password emails not being received",
+    "status": "In Code Review",
+    "cat": "In Progress",
+    "priority": "High",
+    "type": "Service Request",
+    "created": "2026-03-25T14:39:01.401+0100"
+  },
+  {
+    "key": "TBO-11946",
+    "fd": "N/A",
+    "summary": "SYX-5219-101 | Self-Assessment Answers Not Loading - Insights Tab",
+    "status": "In Progress",
+    "cat": "In Progress",
+    "priority": "Medium",
+    "type": "Bug",
+    "created": "2026-03-25T12:34:29.667+0100"
+  },
+  {
+    "key": "TBO-11937",
+    "fd": "N/A",
+    "summary": "Zip / Postal Code Not Valid",
+    "status": "Backlog",
+    "cat": "To Do",
+    "priority": "High",
+    "type": "Bug",
+    "created": "2026-03-24T14:12:56.942+0100"
+  },
+  {
+    "key": "TBO-11911",
+    "fd": "N/A",
+    "summary": "Help center button not opening widget in certain view/page",
+    "status": "Backlog",
+    "cat": "To Do",
+    "priority": "Low",
+    "type": "Bug",
+    "created": "2026-03-20T14:08:05.386+0100"
+  },
+  {
+    "key": "TBO-11900",
+    "fd": "N/A",
+    "summary": "GZPW | Candidate report bug",
+    "status": "Backlog",
+    "cat": "To Do",
+    "priority": "Low",
+    "type": "Service Request",
+    "created": "2026-03-13T16:36:21.160+0100"
+  },
+  {
+    "key": "TBO-11871",
+    "fd": "N/A",
+    "summary": "Duplicate Workspaces/Tenants in Honey",
+    "status": "Backlog",
+    "cat": "To Do",
+    "priority": "Low",
+    "type": "Service Request",
+    "created": "2026-03-11T11:04:41.125+0100"
+  },
+  {
+    "key": "TBO-11795",
+    "fd": "N/A",
+    "summary": "Welcome SMS “@” Placeholder Not Populating Phone Number in Honey",
+    "status": "In Code Review",
+    "cat": "In Progress",
+    "priority": "High",
+    "type": "Bug",
+    "created": "2026-03-02T11:52:28.443+0100"
+  },
+  {
+    "key": "TBO-11674",
+    "fd": "N/A",
+    "summary": "Sanofi 2 Way API | Consent Capture",
+    "status": "In Code Review",
+    "cat": "In Progress",
+    "priority": "High",
+    "type": "Service Request",
+    "created": "2026-02-20T13:24:38.713+0100"
+  },
+  {
+    "key": "TBO-11639",
+    "fd": "N/A",
+    "summary": "System text - Full Consent text link",
+    "status": "Backlog",
+    "cat": "To Do",
+    "priority": "Low",
+    "type": "Task",
+    "created": "2026-02-13T15:51:43.755+0100"
+  }
+]
