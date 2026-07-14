@@ -706,6 +706,45 @@
   .fd-survey-meta .none { color: var(--faint); }
   .fd-survey-score { font-weight: 700; color: var(--ink); }
 
+  /* ---------- JIRA dashboard ---------- */
+  .jira-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
+  .jira-head-actions { display: flex; gap: 10px; align-items: center; }
+  .jira-head-actions .btn-ghost { text-decoration: none; }
+  .jira-donut-wrap { display: flex; align-items: center; gap: 18px; flex-wrap: wrap; }
+  #jiraDonut { flex: none; }
+  #jiraDonut svg { display: block; width: 190px; height: 190px; }
+  .jira-arc { cursor: pointer; transition: opacity .12s; }
+  .jira-arc:hover { opacity: .82; }
+  .jira-arc.dim { opacity: .28; }
+  .jira-donut-center { fill: var(--ink); font-family: "Bricolage Grotesque", sans-serif; font-weight: 700; }
+  .jira-donut-sub { fill: var(--muted); }
+  .jira-legend { display: flex; flex-direction: column; gap: 6px; min-width: 140px; }
+  .jira-leg-item { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; color: var(--muted); cursor: pointer; background: none; border: none; padding: 2px 0; text-align: left; }
+  .jira-leg-item i { width: 11px; height: 11px; border-radius: 3px; flex: none; }
+  .jira-leg-item.dim { opacity: .4; }
+  .jira-leg-item:hover { color: var(--ink); }
+
+  .jira-filter-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+  .jira-filter-row:last-of-type { margin-bottom: 0; }
+  .jira-filter-lab { font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: var(--muted); }
+  .jira-chips { display: inline-flex; flex-wrap: wrap; gap: 7px; }
+  .jira-chip { display: inline-flex; align-items: center; gap: 6px; border: 1.5px solid var(--border-strong); background: var(--surface); color: var(--ink); border-radius: 999px; padding: 4px 11px; font-size: 12.5px; cursor: pointer; transition: border-color .12s, opacity .12s; }
+  .jira-chip i { width: 8px; height: 8px; border-radius: 999px; flex: none; }
+  .jira-chip.active { border-color: var(--pine); box-shadow: 0 0 0 1px var(--pine); }
+  .jira-chip.dim { opacity: .4; }
+  .jira-search { flex: 1; min-width: 220px; font: inherit; font-size: 13.5px; color: var(--ink); background: var(--surface); border: 1px solid var(--border-strong); border-radius: 8px; padding: 8px 12px; }
+  .jira-search:focus { outline: none; border-color: var(--pine); }
+  .jira-clear { border: none; background: none; color: var(--pine); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .jira-clear:hover { text-decoration: underline; }
+
+  .jira-table th { cursor: pointer; user-select: none; }
+  .jira-table th .arr { font-size: 9px; color: var(--muted); }
+  .jira-table td.jira-td-sum { white-space: normal; min-width: 240px; max-width: 460px; }
+  .jira-pri-dot, .jira-stat-dot { width: 8px; height: 8px; border-radius: 999px; display: inline-block; margin-right: 6px; vertical-align: middle; flex: none; }
+  .jira-pri-cell { display: inline-flex; align-items: center; font-weight: 600; }
+  .jira-stat-tag { font-size: 11.5px; font-weight: 600; padding: 2px 8px; border-radius: 6px; white-space: nowrap; }
+  .jira-age { font-size: 11px; color: var(--faint); }
+
   /* Drill-down sort/filter controls */
   .fd-drill-controls { display: flex; align-items: flex-end; gap: 14px; flex-wrap: wrap; margin-bottom: 16px; }
   .fd-ctl { display: inline-flex; flex-direction: column; gap: 5px; font-size: 11.5px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
@@ -759,6 +798,12 @@
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><rect x="7" y="12" width="3" height="6" rx="1"/><rect x="12" y="8" width="3" height="10" rx="1"/><rect x="17" y="5" width="3" height="13" rx="1"/></svg>
         </span>
         <span class="nav-label">FreshDesk</span>
+      </button>
+      <button class="nav-item" id="navJira">
+        <span class="nav-ic">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6l-8-4Z"/><path d="m9 12 2 2 4-4"/></svg>
+        </span>
+        <span class="nav-label">JIRA Dashboard</span>
       </button>
       <button class="nav-item" id="themeBtn"><span class="nav-ic" id="themeIc"></span><span class="nav-label" id="themeLabel">Dark mode</span></button>
       <button class="nav-item" id="openBtn"><span class="nav-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v4a1 1 0 0 0 1 1h4"/><path d="M5 3h9l5 5v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z"/><path d="M12 18v-6"/><path d="m9 15 3-3 3 3"/></svg></span><span class="nav-label">Open file</span></button>
@@ -1138,6 +1183,53 @@
             </label>
           </div>
           <div class="fd-tablewrap"><table class="fd-table fd-tickets-table" id="fdTicketsTable"></table></div>
+        </div>
+      </section>
+
+      <!-- JIRA support-ticket dashboard -->
+      <section class="view" id="jiraView">
+        <div class="jira-head">
+          <div>
+            <h1 class="page-title" style="margin-bottom:4px;">JIRA Support Dashboard</h1>
+            <p class="jt-sub" id="jiraSub">Open tickets labeled Support-ticket &middot; DevTeam (TBO)</p>
+          </div>
+          <div class="jira-head-actions">
+            <a class="btn-ghost" id="jiraOpenLink" href="https://trialbee.atlassian.net/issues?jql=labels%20%3D%20%22Support-ticket%22%20AND%20statusCategory%20!%3D%20Done" target="_blank" rel="noopener noreferrer">Open in Jira &#8599;</a>
+            <button type="button" class="btn-solid" id="jiraRefreshBtn">&#8635; Refresh</button>
+          </div>
+        </div>
+
+        <div class="jt-status hidden" id="jiraStatus"></div>
+
+        <!-- KPIs -->
+        <div class="fd-kpis" id="jiraKpis"></div>
+
+        <!-- Charts -->
+        <div class="fd-grid2">
+          <div class="jt-card">
+            <p class="jt-card-label">By status</p>
+            <div class="jira-donut-wrap"><div id="jiraDonut"></div><div class="jira-legend" id="jiraStatusLegend"></div></div>
+          </div>
+          <div class="jt-card">
+            <p class="jt-card-label">By priority</p>
+            <div class="fd-bars" id="jiraPriBars"></div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="jt-card">
+          <div class="jira-filter-row"><span class="jira-filter-lab">Status</span><span class="jira-chips" id="jiraStatusChips"></span></div>
+          <div class="jira-filter-row"><span class="jira-filter-lab">Priority</span><span class="jira-chips" id="jiraPriChips"></span></div>
+          <div class="jira-filter-row">
+            <input type="text" class="jira-search" id="jiraSearch" placeholder="Search key or summary&hellip;">
+            <button type="button" class="jira-clear hidden" id="jiraClear">&times; Clear filters</button>
+          </div>
+          <p class="jt-sub" id="jiraShowing" style="margin:4px 0 0;"></p>
+        </div>
+
+        <!-- Table -->
+        <div class="jt-card">
+          <div class="fd-tablewrap"><table class="fd-table jira-table" id="jiraTable"></table></div>
         </div>
       </section>
 
@@ -1747,6 +1839,8 @@
     if (jt) jt.classList.toggle("active", currentView.indexOf("json") === 0);
     var fd = document.getElementById("navFreshdesk");
     if (fd) fd.classList.toggle("active", currentView === "freshdesk" || currentView === "fd-tickets");
+    var jira = document.getElementById("navJira");
+    if (jira) jira.classList.toggle("active", currentView === "jira");
     var items = document.querySelectorAll("#navLists .nav-item");
     Array.prototype.forEach.call(items, function (b) {
       b.classList.toggle("active", currentView === "list" && b.getAttribute("data-listid") === currentListId);
@@ -2441,6 +2535,7 @@
     $("jsonStitchView").classList.toggle("active", view === "json-stitch");
     $("freshdeskView").classList.toggle("active", view === "freshdesk");
     $("fdTicketsView").classList.toggle("active", view === "fd-tickets");
+    $("jiraView").classList.toggle("active", view === "jira");
     updateNavActive();
     closeNav(); // close mobile drawer after navigating
     var c = document.querySelector(".content"); if (c) c.scrollTop = 0;
@@ -2568,6 +2663,7 @@
   $("jsonCsvBackBtn").addEventListener("click", function () { show("json"); });
   $("jsonStitchBackBtn").addEventListener("click", function () { show("json"); });
   $("navFreshdesk").addEventListener("click", function () { relockAll(function () { show("freshdesk"); }); });
+  $("navJira").addEventListener("click", function () { relockAll(function () { show("jira"); }); });
   $("fdTicketsBackBtn").addEventListener("click", function () { show("freshdesk"); });
   (function () {
     function openDrill(row) {
@@ -2719,7 +2815,7 @@
     var sess = JSON.parse(localStorage.getItem(SESSION_KEY) || "null");
     if (sess && sess.view) {
       var v = (sess.view === "fd-tickets") ? "freshdesk" : sess.view;
-      if (["overview", "json", "json-csv", "json-stitch", "freshdesk"].indexOf(v) !== -1) initialView = v;
+      if (["overview", "json", "json-csv", "json-stitch", "freshdesk", "jira"].indexOf(v) !== -1) initialView = v;
     }
   } catch (e) {}
   show(initialView);
@@ -3847,6 +3943,297 @@
         try { localStorage.removeItem(FD_KEY); } catch (e2) {}
       }
     })();
+  })();
+
+
+
+  // ─── JIRA support-ticket dashboard ───────────────────────────────────────
+  (function () {
+    function jEl(id) { return document.getElementById(id); }
+    function jEsc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+
+    var BROWSE = 'https://trialbee.atlassian.net/browse/';
+    var FD_BASE = 'https://trialbee.freshdesk.com/a/tickets/';
+    var CLOUD_ID = '380f5e00-0108-484d-b9f6-3f5eef65e70a';
+    var JIRA_TOOL = 'mcp__6ce1e4b3-02e1-47e0-a43f-2e210c3fdb1a__searchJiraIssuesUsingJql';
+    var JQL = 'labels = "Support-ticket" AND statusCategory != Done ORDER BY created DESC';
+
+    var PRI_ORDER = ['Highest', 'High', 'Medium', 'Low', 'Lowest'];
+    var PRI_COLOR = { Highest: '#b42318', High: '#d92d20', Medium: '#dc6803', Low: '#2970ff', Lowest: '#94a3b8', None: '#94a3b8' };
+    var CAT_COLOR = { 'To Do': '#64748b', 'In Progress': '#0c66e4', 'Done': '#16a34a' };
+    function statusColor(cat) { return CAT_COLOR[cat] || '#64748b'; }
+
+    // Snapshot of open Jira tickets labeled "Support-ticket" (trialbee / DevTeam).
+    // No PII: assignees and descriptions are deliberately omitted, so FD # is N/A
+    // in the snapshot; a live Refresh (Cowork/Jira connector) fills it from the description.
+    var TICKETS = [
+  { key: "TBO-12714", summary: "distance to site exports in unknown units", status: "Backlog", cat: "To Do", priority: "Medium", type: "Bug", created: "2026-06-12T21:14:03.485+0200" },
+  { key: "TBO-12707", summary: "Mentor GLOW Study | SMS Report Error", status: "Backlog", cat: "To Do", priority: "High", type: "Service Request", created: "2026-06-12T14:34:14.560+0200" },
+  { key: "TBO-12658", summary: "Fw: GZMR | candidate follow-up", status: "Backlog", cat: "To Do", priority: "Medium", type: "Bug", created: "2026-06-09T21:40:26.271+0200" },
+  { key: "TBO-12642", summary: "Requesting study dashboard metrics after close-out", status: "Backlog", cat: "To Do", priority: "Low", type: "Service Request", created: "2026-06-05T20:59:01.860+0200" },
+  { key: "TBO-12628", summary: "GZMR-19977 and GZMR-13502 were MR qualified but site assignment wasn't updated", status: "Backlog", cat: "To Do", priority: "Low", type: "Bug", created: "2026-06-03T21:39:10.115+0200" },
+  { key: "TBO-12627", summary: "Issue exporting answers in Honey", status: "Backlog", cat: "To Do", priority: "High", type: "Bug", created: "2026-06-03T15:06:46.202+0200" },
+  { key: "TBO-12594", summary: "No test emails coming through", status: "Backlog", cat: "To Do", priority: "Low", type: "Bug", created: "2026-06-01T17:19:29.904+0200" },
+  { key: "TBO-12544", summary: "Bug: Reminder not on reports", status: "Backlog", cat: "To Do", priority: "Low", type: "Bug", created: "2026-05-26T21:26:08.924+0200" },
+  { key: "TBO-12543", summary: "Consideration: Label change from Comment to Note", status: "Backlog", cat: "To Do", priority: "Low", type: "Service Request", created: "2026-05-26T17:57:46.629+0200" },
+  { key: "TBO-12540", summary: "Site User Honey Access", status: "Backlog", cat: "To Do", priority: "Low", type: "Bug", created: "2026-05-26T14:43:26.898+0200" },
+  { key: "TBO-12514", summary: "Potential bug in system_gender question", status: "Backlog", cat: "To Do", priority: "Low", type: "Bug", created: "2026-05-20T15:12:59.086+0200" },
+  { key: "TBO-12490", summary: "Boolean Yes/No visibility logic does not reveal questions as set", status: "Backlog", cat: "To Do", priority: "Medium", type: "Bug", created: "2026-05-14T13:15:31.266+0200" },
+  { key: "TBO-12419", summary: "Run UAT with Nathan (Gustaf/Nathan)", status: "Backlog", cat: "To Do", priority: "Low", type: "Sub-Task", created: "2026-05-04T10:11:44.689+0200" },
+  { key: "TBO-12363", summary: "Verify that Comprehend is working in all non-prod environment", status: "Backlog", cat: "To Do", priority: "Low", type: "Sub-Task", created: "2026-04-28T10:00:29.385+0200" },
+  { key: "TBO-12362", summary: "Verify that Comprehend is working in prod", status: "Backlog", cat: "To Do", priority: "Low", type: "Sub-Task", created: "2026-04-28T09:59:59.509+0200" },
+  { key: "TBO-12361", summary: "Verify that replay functionality is working (and part of IaC)", status: "Backlog", cat: "To Do", priority: "Low", type: "Sub-Task", created: "2026-04-28T09:59:47.603+0200" },
+  { key: "TBO-12360", summary: "Honey Comment Censorship issue (Comprehend)", status: "Backlog", cat: "To Do", priority: "High", type: "Bug", created: "2026-04-28T09:59:09.777+0200" },
+  { key: "TBO-12321", summary: "Takeda | MarsLight-11 | Node-RED automation Set-up (Mid May)", status: "Need more info", cat: "To Do", priority: "Low", type: "Service Request", created: "2026-04-23T16:40:59.994+0200" },
+  { key: "TBO-12097", summary: "Handle webhook from Node-RED and run requested automation", status: "In Code Review", cat: "In Progress", priority: "Low", type: "Sub-Task", created: "2026-04-13T15:17:32.036+0200" },
+  { key: "TBO-12096", summary: "Convert AMQP-events using Node-RED running in Docker Swarm to webhooks", status: "In Code Review", cat: "In Progress", priority: "Low", type: "Sub-Task", created: "2026-04-13T14:52:07.215+0200" },
+  { key: "TBO-12086", summary: "Axsome FORWARD and CLARITY Tag Automation Request", status: "In Code Review", cat: "In Progress", priority: "Medium", type: "Service Request", created: "2026-04-10T19:06:23.204+0200" },
+  { key: "TBO-12028", summary: "Allow user email address editing in global admin", status: "Backlog", cat: "To Do", priority: "Low", type: "Story", created: "2026-04-01T11:03:44.091+0200" },
+  { key: "TBO-11949", summary: "Reset password emails not being received", status: "In Code Review", cat: "In Progress", priority: "High", type: "Service Request", created: "2026-03-25T14:39:01.401+0100" },
+  { key: "TBO-11946", summary: "SYX-5219-101 | Self-Assessment Answers Not Loading - Insights Tab", status: "In Progress", cat: "In Progress", priority: "Medium", type: "Bug", created: "2026-03-25T12:34:29.667+0100" },
+  { key: "TBO-11937", summary: "Zip / Postal Code Not Valid", status: "Backlog", cat: "To Do", priority: "High", type: "Bug", created: "2026-03-24T14:12:56.942+0100" },
+  { key: "TBO-11911", summary: "Help center button not opening widget in certain view/page", status: "Backlog", cat: "To Do", priority: "Low", type: "Bug", created: "2026-03-20T14:08:05.386+0100" },
+  { key: "TBO-11900", summary: "GZPW | Candidate report bug", status: "Backlog", cat: "To Do", priority: "Low", type: "Service Request", created: "2026-03-13T16:36:21.160+0100" },
+  { key: "TBO-11871", summary: "Duplicate Workspaces/Tenants in Honey", status: "Backlog", cat: "To Do", priority: "Low", type: "Service Request", created: "2026-03-11T11:04:41.125+0100" },
+  { key: "TBO-11795", summary: "Welcome SMS “@” Placeholder Not Populating Phone Number in Honey", status: "In Code Review", cat: "In Progress", priority: "High", type: "Bug", created: "2026-03-02T11:52:28.443+0100" },
+  { key: "TBO-11674", summary: "Sanofi 2 Way API | Consent Capture", status: "In Code Review", cat: "In Progress", priority: "High", type: "Service Request", created: "2026-02-20T13:24:38.713+0100" },
+  { key: "TBO-11639", summary: "System text - Full Consent text link", status: "Backlog", cat: "To Do", priority: "Low", type: "Task", created: "2026-02-13T15:51:43.755+0100" },
+    ];
+
+    // Working state
+    var RAW = TICKETS.slice();
+    var fStatus = {}, fPri = {};   // active filters (empty = all)
+    var jSearch = '';
+    var jSortKey = 'created', jSortDir = -1;
+
+    function anyKeys(o) { for (var k in o) { if (o[k]) return true; } return false; }
+    function fmtDate(s) { if (!s) return '\u2014'; var d = new Date(s); return isNaN(d) ? '\u2014' : d.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }); }
+    function daysOld(s) { if (!s) return null; var d = new Date(s); return isNaN(d) ? null : Math.floor((Date.now() - d.getTime()) / 86400000); }
+
+    function counts(key) { var m = {}; RAW.forEach(function (t) { var v = t[key] || ''; m[v] = (m[v] || 0) + 1; }); return m; }
+    function catFor(status) { var t = RAW.find ? RAW.find(function (x) { return x.status === status; }) : null; if (!t) { for (var i = 0; i < RAW.length; i++) { if (RAW[i].status === status) { t = RAW[i]; break; } } } return t ? t.cat : 'To Do'; }
+
+    function priorityList() {
+      var seen = {}; RAW.forEach(function (t) { seen[t.priority] = 1; });
+      return Object.keys(seen).sort(function (a, b) {
+        var i = PRI_ORDER.indexOf(a), j = PRI_ORDER.indexOf(b);
+        return (i < 0 ? 99 : i) - (j < 0 ? 99 : j);
+      });
+    }
+    function statusList() { var seen = {}; RAW.forEach(function (t) { seen[t.status] = 1; }); return Object.keys(seen).sort(); }
+
+    function applyFilters() {
+      var q = jSearch.toLowerCase();
+      var sActive = anyKeys(fStatus), pActive = anyKeys(fPri);
+      return RAW.filter(function (t) {
+        if (sActive && !fStatus[t.status]) return false;
+        if (pActive && !fPri[t.priority]) return false;
+        if (q && (t.summary || '').toLowerCase().indexOf(q) < 0 && (t.key || '').toLowerCase().indexOf(q) < 0) return false;
+        return true;
+      });
+    }
+    function sortRows(rows) {
+      var dir = jSortDir;
+      return rows.slice().sort(function (a, b) {
+        var av, bv;
+        if (jSortKey === 'priority') { av = PRI_ORDER.indexOf(a.priority); bv = PRI_ORDER.indexOf(b.priority); if (av < 0) av = 99; if (bv < 0) bv = 99; }
+        else if (jSortKey === 'created') { av = new Date(a.created).getTime() || 0; bv = new Date(b.created).getTime() || 0; }
+        else if (jSortKey === 'fd') { av = parseInt(a.fd, 10); bv = parseInt(b.fd, 10); if (isNaN(av)) av = -1; if (isNaN(bv)) bv = -1; }
+        else { av = (a[jSortKey] || '').toLowerCase(); bv = (b[jSortKey] || '').toLowerCase(); }
+        if (av < bv) return -dir; if (av > bv) return dir; return 0;
+      });
+    }
+
+    // ---- Donut (SVG) ----
+    function arcPath(cx, cy, rIn, rOut, a0, a1) {
+      var x0o = cx + rOut * Math.cos(a0), y0o = cy + rOut * Math.sin(a0);
+      var x1o = cx + rOut * Math.cos(a1), y1o = cy + rOut * Math.sin(a1);
+      var x1i = cx + rIn * Math.cos(a1), y1i = cy + rIn * Math.sin(a1);
+      var x0i = cx + rIn * Math.cos(a0), y0i = cy + rIn * Math.sin(a0);
+      var large = (a1 - a0) > Math.PI ? 1 : 0;
+      return 'M' + x0o.toFixed(2) + ',' + y0o.toFixed(2) +
+        ' A' + rOut + ',' + rOut + ' 0 ' + large + ' 1 ' + x1o.toFixed(2) + ',' + y1o.toFixed(2) +
+        ' L' + x1i.toFixed(2) + ',' + y1i.toFixed(2) +
+        ' A' + rIn + ',' + rIn + ' 0 ' + large + ' 0 ' + x0i.toFixed(2) + ',' + y0i.toFixed(2) + ' Z';
+    }
+    function renderDonut() {
+      var m = counts('status');
+      var names = Object.keys(m).sort(function (a, b) { return m[b] - m[a]; });
+      var total = RAW.length || 1;
+      var cx = 95, cy = 95, rOut = 78, rIn = 50, a = -Math.PI / 2;
+      var svg = '<svg viewBox="0 0 190 190" role="img" aria-label="Tickets by status">';
+      if (!names.length) { svg += '</svg>'; }
+      else {
+        names.forEach(function (nm) {
+          var frac = m[nm] / total, a1 = a + frac * Math.PI * 2;
+          var dim = anyKeys(fStatus) && !fStatus[nm] ? ' dim' : '';
+          // full-circle guard
+          var seg = (names.length === 1)
+            ? '<circle cx="95" cy="95" r="' + ((rOut + rIn) / 2) + '" fill="none" stroke="' + statusColor(catFor(nm)) + '" stroke-width="' + (rOut - rIn) + '"/>'
+            : '<path class="jira-arc' + dim + '" d="' + arcPath(cx, cy, rIn, rOut, a, a1) + '" fill="' + statusColor(catFor(nm)) + '" data-status="' + jEsc(nm) + '"><title>' + jEsc(nm) + ': ' + m[nm] + '</title></path>';
+          svg += seg; a = a1;
+        });
+        svg += '<text class="jira-donut-center" x="95" y="92" text-anchor="middle" font-size="30">' + total + '</text>';
+        svg += '<text class="jira-donut-sub" x="95" y="110" text-anchor="middle" font-size="11">open</text>';
+        svg += '</svg>';
+      }
+      jEl('jiraDonut').innerHTML = svg;
+
+      var leg = names.map(function (nm) {
+        var dim = anyKeys(fStatus) && !fStatus[nm] ? ' dim' : '';
+        return '<button class="jira-leg-item' + dim + '" data-status="' + jEsc(nm) + '"><i style="background:' + statusColor(catFor(nm)) + '"></i>' + jEsc(nm) + ' (' + m[nm] + ')</button>';
+      }).join('');
+      jEl('jiraStatusLegend').innerHTML = leg;
+    }
+
+    // ---- Priority bars ----
+    function renderPriBars() {
+      var m = counts('priority'), pris = priorityList();
+      var max = 0; pris.forEach(function (p) { if (m[p] > max) max = m[p]; }); if (!max) max = 1;
+      jEl('jiraPriBars').innerHTML = pris.map(function (p) {
+        var dim = anyKeys(fPri) && !fPri[p] ? ' style="opacity:.4"' : '';
+        var pct = Math.round((m[p] || 0) / max * 100);
+        return '<div class="fd-bar-row fd-clickable" role="button" tabindex="0" data-pri="' + jEsc(p) + '"' + dim + '>' +
+          '<span class="fd-bar-label">' + jEsc(p) + '</span>' +
+          '<span class="fd-bar-track"><span class="fd-bar-fill" style="width:' + pct + '%;background:' + (PRI_COLOR[p] || '#94a3b8') + '"></span></span>' +
+          '<span class="fd-bar-val">' + (m[p] || 0) + '</span></div>';
+      }).join('');
+    }
+
+    // ---- Chips ----
+    function renderChips() {
+      var sActive = anyKeys(fStatus), pActive = anyKeys(fPri);
+      jEl('jiraStatusChips').innerHTML = statusList().map(function (s) {
+        var cls = 'jira-chip' + (fStatus[s] ? ' active' : (sActive ? ' dim' : ''));
+        return '<button class="' + cls + '" data-status="' + jEsc(s) + '"><i style="background:' + statusColor(catFor(s)) + '"></i>' + jEsc(s) + '</button>';
+      }).join('');
+      jEl('jiraPriChips').innerHTML = priorityList().map(function (p) {
+        var cls = 'jira-chip' + (fPri[p] ? ' active' : (pActive ? ' dim' : ''));
+        return '<button class="' + cls + '" data-pri="' + jEsc(p) + '"><i style="background:' + (PRI_COLOR[p] || '#94a3b8') + '"></i>' + jEsc(p) + '</button>';
+      }).join('');
+      jEl('jiraClear').classList.toggle('hidden', !(sActive || pActive || jSearch));
+    }
+
+    // ---- KPIs ----
+    function renderKpis() {
+      var total = RAW.length;
+      var high = RAW.filter(function (t) { return t.priority === 'High' || t.priority === 'Highest'; }).length;
+      var active = RAW.filter(function (t) { return t.cat === 'In Progress'; }).length;
+      var backlog = RAW.filter(function (t) { return t.cat === 'To Do'; }).length;
+      function kpi(n, label, alert) {
+        return '<div class="fd-kpi"><div class="k-value"' + (alert ? ' style="color:#d92d20"' : '') + '>' + n + '</div><div class="k-label">' + label + '</div></div>';
+      }
+      jEl('jiraKpis').innerHTML = kpi(total, 'Open tickets') + kpi(high, 'High / Highest', true) + kpi(active, 'In progress') + kpi(backlog, 'Backlog / To do');
+    }
+
+    // ---- Table ----
+    var COLS = [['key', 'Key'], ['fd', 'FD Ticket'], ['summary', 'Summary'], ['priority', 'Priority'], ['status', 'Status'], ['type', 'Type'], ['created', 'Created']];
+    function renderTable() {
+      var rows = sortRows(applyFilters());
+      var head = '<thead><tr>' + COLS.map(function (c) {
+        var arr = jSortKey === c[0] ? (jSortDir > 0 ? ' \u2191' : ' \u2193') : '';
+        return '<th data-k="' + c[0] + '">' + c[1] + '<span class="arr">' + arr + '</span></th>';
+      }).join('') + '</tr></thead>';
+
+      var body;
+      if (!rows.length) { body = '<tbody><tr><td colspan="7" style="text-align:center;color:var(--faint);padding:28px">No tickets match the current filters.</td></tr></tbody>'; }
+      else {
+        body = '<tbody>' + rows.map(function (t) {
+          var age = daysOld(t.created);
+          var sc = statusColor(t.cat);
+          var fd = t.fd && t.fd !== 'N/A' ? t.fd : null;
+          var fdCell = fd
+            ? '<a class="fd-tid-link" href="' + FD_BASE + encodeURIComponent(fd) + '" target="_blank" rel="noopener noreferrer">' + jEsc(fd) + '</a>'
+            : '<span style="color:var(--faint)">N/A</span>';
+          return '<tr>' +
+            '<td><a class="fd-tid-link" href="' + BROWSE + encodeURIComponent(t.key) + '" target="_blank" rel="noopener noreferrer">' + jEsc(t.key) + ' \u2197</a></td>' +
+            '<td>' + fdCell + '</td>' +
+            '<td class="jira-td-sum">' + jEsc(t.summary) + '</td>' +
+            '<td><span class="jira-pri-cell"><span class="jira-pri-dot" style="background:' + (PRI_COLOR[t.priority] || '#94a3b8') + '"></span>' + jEsc(t.priority) + '</span></td>' +
+            '<td><span class="jira-stat-tag" style="background:' + sc + '22;color:' + sc + '">' + jEsc(t.status) + '</span></td>' +
+            '<td style="color:var(--muted)">' + jEsc(t.type) + '</td>' +
+            '<td style="white-space:nowrap;color:var(--muted)">' + fmtDate(t.created) + (age != null ? ' <span class="jira-age">\u00b7 ' + age + 'd</span>' : '') + '</td>' +
+            '</tr>';
+        }).join('') + '</tbody>';
+      }
+      jEl('jiraTable').innerHTML = head + body;
+      jEl('jiraShowing').textContent = 'Showing ' + rows.length + ' of ' + RAW.length + ' tickets';
+    }
+
+    function renderAll() { renderKpis(); renderDonut(); renderPriBars(); renderChips(); renderTable(); }
+
+    function toggleSet(set, val) { if (set[val]) delete set[val]; else set[val] = 1; }
+
+    // ---- Wiring ----
+    jEl('jiraStatusChips').addEventListener('click', function (e) { var b = e.target.closest('[data-status]'); if (!b) return; toggleSet(fStatus, b.getAttribute('data-status')); renderAll(); });
+    jEl('jiraPriChips').addEventListener('click', function (e) { var b = e.target.closest('[data-pri]'); if (!b) return; toggleSet(fPri, b.getAttribute('data-pri')); renderAll(); });
+    jEl('jiraStatusLegend').addEventListener('click', function (e) { var b = e.target.closest('[data-status]'); if (!b) return; toggleSet(fStatus, b.getAttribute('data-status')); renderAll(); });
+    jEl('jiraDonut').addEventListener('click', function (e) { var p = e.target.closest('[data-status]'); if (!p) return; toggleSet(fStatus, p.getAttribute('data-status')); renderAll(); });
+    jEl('jiraPriBars').addEventListener('click', function (e) { var b = e.target.closest('[data-pri]'); if (!b) return; toggleSet(fPri, b.getAttribute('data-pri')); renderAll(); });
+    jEl('jiraPriBars').addEventListener('keydown', function (e) { if (e.key !== 'Enter' && e.key !== ' ') return; var b = e.target.closest('[data-pri]'); if (!b) return; e.preventDefault(); toggleSet(fPri, b.getAttribute('data-pri')); renderAll(); });
+    jEl('jiraSearch').addEventListener('input', function () { jSearch = this.value; renderTable(); renderChips(); });
+    jEl('jiraClear').addEventListener('click', function () { fStatus = {}; fPri = {}; jSearch = ''; jEl('jiraSearch').value = ''; renderAll(); });
+    jEl('jiraTable').addEventListener('click', function (e) {
+      var th = e.target.closest('th[data-k]'); if (!th) return;
+      var k = th.getAttribute('data-k');
+      if (jSortKey === k) jSortDir = -jSortDir;
+      else { jSortKey = k; jSortDir = (k === 'created' || k === 'priority' || k === 'fd') ? -1 : 1; }
+      renderTable();
+    });
+
+    // ---- Live refresh via the Jira connector when available (Cowork) ----
+    function jSetStatus(type, msg) { var el = jEl('jiraStatus'); el.className = 'jt-status ' + type; el.textContent = msg; el.classList.remove('hidden'); }
+    function jHideStatus() { jEl('jiraStatus').classList.add('hidden'); }
+
+    async function fetchLive() {
+      var nodes = [], token = null, guard = 0;
+      do {
+        var args = { cloudId: CLOUD_ID, jql: JQL, maxResults: 100, fields: ['summary', 'status', 'priority', 'issuetype', 'created', 'description'], responseContentFormat: 'markdown' };
+        if (token) args.nextPageToken = token;
+        var r = await window.cowork.callMcpTool(JIRA_TOOL, args);
+        if (r.isError) throw new Error((r.content && r.content[0] && r.content[0].text) || 'Tool error');
+        var data = r.structuredContent != null ? r.structuredContent : JSON.parse(r.content[0].text);
+        var page = (data.issues && data.issues.nodes) || [];
+        nodes = nodes.concat(page);
+        token = data.issues && data.issues.pageInfo && data.issues.pageInfo.hasNextPage ? data.issues.pageInfo.endCursor : null;
+      } while (token && ++guard < 20);
+      return nodes.map(function (n) {
+        var f = n.fields || {};
+        var dr = f.description;
+        var ds = typeof dr === 'string' ? dr : (dr ? JSON.stringify(dr) : '');
+        var mm = ds.match(/FD\s*#\s*(\d+)/i);
+        return {
+          key: n.key, fd: mm ? mm[1] : 'N/A', summary: f.summary || '',
+          status: (f.status && f.status.name) || 'Unknown',
+          cat: (f.status && f.status.statusCategory && f.status.statusCategory.name) || 'To Do',
+          priority: (f.priority && f.priority.name) || 'None',
+          type: (f.issuetype && f.issuetype.name) || '', created: f.created || null
+        };
+      });
+    }
+
+    jEl('jiraRefreshBtn').addEventListener('click', async function () {
+      if (!(window.cowork && typeof window.cowork.callMcpTool === 'function')) {
+        jSetStatus('error', 'Live refresh needs the Jira connector, which is available when this app runs in Cowork. Showing the last snapshot (' + TICKETS.length + ' tickets).');
+        return;
+      }
+      var btn = this; btn.disabled = true; btn.textContent = '\u2026 Refreshing';
+      jHideStatus();
+      try {
+        var data = await fetchLive();
+        RAW = data;
+        fStatus = {}; fPri = {}; jSearch = ''; jEl('jiraSearch').value = '';
+        renderAll();
+        jEl('jiraSub').textContent = 'Open tickets labeled Support-ticket \u00b7 DevTeam (TBO) \u00b7 ' + RAW.length + ' open \u00b7 updated ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        jSetStatus('success', 'Refreshed ' + RAW.length + ' open tickets from Jira.');
+      } catch (err) {
+        jSetStatus('error', 'Could not refresh from Jira: ' + (err && err.message ? err.message : err));
+      }
+      btn.disabled = false; btn.innerHTML = '&#8635; Refresh';
+    });
+
+    jEl('jiraSub').textContent = 'Open tickets labeled Support-ticket \u00b7 DevTeam (TBO) \u00b7 ' + RAW.length + ' open \u00b7 snapshot';
+    renderAll();
   })();
 
 
