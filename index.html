@@ -588,6 +588,12 @@
   .fd-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin: 4px 0 18px; }
   .fd-range { font-size: 13.5px; color: var(--muted); font-weight: 600; }
 
+  /* Compact CSV loader */
+  .fd-loadbar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 6px; }
+  .fd-load-btn { cursor: pointer; }
+  #fdUploadArea.drag-over { outline: 2px dashed var(--pine); outline-offset: 3px; }
+  .fd-loadbar .jt-file-info { margin-top: 0; }
+
   .fd-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 18px; }
   .fd-kpi { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow); padding: 16px 18px; }
   .fd-kpi .k-label { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; margin-bottom: 6px; }
@@ -1067,21 +1073,16 @@
         <h1 class="page-title" style="margin-bottom:4px;">FreshDesk Report</h1>
         <p class="jt-sub">Load a Freshdesk ticket export (CSV) to see volume, agent, and helpdesk-performance breakdowns.</p>
 
-        <div class="jt-card" id="fdLoadCard">
-          <p class="jt-card-label">Load data</p>
-          <div class="jt-upload-area" id="fdUploadArea">
-            <div class="jt-upload-icon">📊</div>
-            <strong>Load FreshDesk CSV</strong>
-            <p>click to choose, or drag &amp; drop your ticket export here</p>
-          </div>
+        <div class="fd-loadbar" id="fdLoadCard">
+          <button type="button" class="btn-solid fd-load-btn" id="fdUploadArea">&#128202; Load FreshDesk CSV</button>
           <input type="file" id="fdFileInput" accept=".csv,text/csv" style="display:none">
-          <div class="jt-file-info hidden" id="fdFileInfo">
+          <span class="jt-file-info hidden" id="fdFileInfo">
             <span>📄</span>
             <span class="jt-file-name" id="fdFileName"></span>
             <span class="jt-file-size" id="fdFileSize"></span>
-          </div>
-          <div class="jt-status hidden" id="fdStatus"></div>
+          </span>
         </div>
+        <div class="jt-status hidden" id="fdStatus"></div>
 
         <div id="fdReport" class="hidden">
           <div class="fd-toolbar">
@@ -1142,6 +1143,16 @@
             </div>
           </div>
 
+          <!-- Customer interactions -->
+          <div class="jt-card" id="fdInteractionsCard">
+            <p class="jt-card-label">Customer interactions</p>
+            <details class="fd-desc">
+              <summary>What this shows</summary>
+              <p><b>Customer interactions</b> is Freshdesk's count of the back-and-forth messages exchanged with the requester on a ticket &mdash; each customer reply/conversation adds one. It's a proxy for how much effort a ticket took: a ticket resolved in a <b>single interaction</b> ("one-touch") was answered without further back-and-forth, while higher counts mean more rounds of clarification. The distribution below shows how many tickets needed each number of interactions; the one-touch rate is a common help-desk efficiency measure (higher is generally better, though very complex issues will naturally need more).</p>
+            </details>
+            <div id="fdInteractions"></div>
+          </div>
+
           <!-- Customer satisfaction (survey), per priority -->
           <div class="jt-card" id="fdSurveyCard">
             <p class="jt-card-label">Customer satisfaction &mdash; survey by priority</p>
@@ -1191,45 +1202,59 @@
         <div class="jira-head">
           <div>
             <h1 class="page-title" style="margin-bottom:4px;">JIRA Support Dashboard</h1>
-            <p class="jt-sub" id="jiraSub">Open tickets labeled Support-ticket &middot; DevTeam (TBO)</p>
+            <p class="jt-sub" id="jiraSub">Import a JIRA support-ticket JSON export to see the dashboard.</p>
           </div>
           <div class="jira-head-actions">
             <a class="btn-ghost" id="jiraOpenLink" href="https://trialbee.atlassian.net/issues?jql=labels%20%3D%20%22Support-ticket%22%20AND%20statusCategory%20!%3D%20Done" target="_blank" rel="noopener noreferrer">Open in Jira &#8599;</a>
-            <button type="button" class="btn-solid" id="jiraRefreshBtn">&#8635; Refresh</button>
+            <button type="button" class="btn-solid" id="jiraImportBtn">&#8593; Import JSON</button>
           </div>
         </div>
 
+        <input type="file" id="jiraFileInput" accept=".json,application/json" style="display:none">
         <div class="jt-status hidden" id="jiraStatus"></div>
 
-        <!-- KPIs -->
-        <div class="fd-kpis" id="jiraKpis"></div>
-
-        <!-- Charts -->
-        <div class="fd-grid2">
-          <div class="jt-card">
-            <p class="jt-card-label">By status</p>
-            <div class="jira-donut-wrap"><div id="jiraDonut"></div><div class="jira-legend" id="jiraStatusLegend"></div></div>
-          </div>
-          <div class="jt-card">
-            <p class="jt-card-label">By priority</p>
-            <div class="fd-bars" id="jiraPriBars"></div>
+        <!-- Empty state / drop zone (shown until a file is imported) -->
+        <div class="jt-card" id="jiraEmpty">
+          <p class="jt-card-label">Import data</p>
+          <div class="jt-upload-area" id="jiraUploadArea">
+            <div class="jt-upload-icon">&#128229;</div>
+            <strong>Import JIRA tickets JSON</strong>
+            <p>click to choose, or drag &amp; drop your exported support-ticket <code>.json</code> here</p>
           </div>
         </div>
 
-        <!-- Filters -->
-        <div class="jt-card">
-          <div class="jira-filter-row"><span class="jira-filter-lab">Status</span><span class="jira-chips" id="jiraStatusChips"></span></div>
-          <div class="jira-filter-row"><span class="jira-filter-lab">Priority</span><span class="jira-chips" id="jiraPriChips"></span></div>
-          <div class="jira-filter-row">
-            <input type="text" class="jira-search" id="jiraSearch" placeholder="Search key or summary&hellip;">
-            <button type="button" class="jira-clear hidden" id="jiraClear">&times; Clear filters</button>
-          </div>
-          <p class="jt-sub" id="jiraShowing" style="margin:4px 0 0;"></p>
-        </div>
+        <!-- Dashboard (shown once data is loaded) -->
+        <div id="jiraReport" class="hidden">
+          <!-- KPIs -->
+          <div class="fd-kpis" id="jiraKpis"></div>
 
-        <!-- Table -->
-        <div class="jt-card">
-          <div class="fd-tablewrap"><table class="fd-table jira-table" id="jiraTable"></table></div>
+          <!-- Charts -->
+          <div class="fd-grid2">
+            <div class="jt-card">
+              <p class="jt-card-label">By status</p>
+              <div class="jira-donut-wrap"><div id="jiraDonut"></div><div class="jira-legend" id="jiraStatusLegend"></div></div>
+            </div>
+            <div class="jt-card">
+              <p class="jt-card-label">By priority</p>
+              <div class="fd-bars" id="jiraPriBars"></div>
+            </div>
+          </div>
+
+          <!-- Filters -->
+          <div class="jt-card">
+            <div class="jira-filter-row"><span class="jira-filter-lab">Status</span><span class="jira-chips" id="jiraStatusChips"></span></div>
+            <div class="jira-filter-row"><span class="jira-filter-lab">Priority</span><span class="jira-chips" id="jiraPriChips"></span></div>
+            <div class="jira-filter-row">
+              <input type="text" class="jira-search" id="jiraSearch" placeholder="Search key or summary&hellip;">
+              <button type="button" class="jira-clear hidden" id="jiraClear">&times; Clear filters</button>
+            </div>
+            <p class="jt-sub" id="jiraShowing" style="margin:4px 0 0;"></p>
+          </div>
+
+          <!-- Table -->
+          <div class="jt-card">
+            <div class="fd-tablewrap"><table class="fd-table jira-table" id="jiraTable"></table></div>
+          </div>
         </div>
       </section>
 
@@ -2672,7 +2697,7 @@
       var val = row.getAttribute("data-fd-value");
       if (window.fdOpenDrill && window.fdOpenDrill(dim, val)) show("fd-tickets");
     }
-    $("fdBreakdowns").addEventListener("click", function (e) {
+    function onClick(e) {
       var row = e.target.closest('.fd-bar-row[data-fd-drill]');
       if (!row) return;
       // On a roll-up group summary, the ▸ arrow is reserved for expand/collapse;
@@ -2682,13 +2707,19 @@
         e.preventDefault();
       }
       openDrill(row);
-    });
-    $("fdBreakdowns").addEventListener("keydown", function (e) {
+    }
+    function onKey(e) {
       if (e.key !== "Enter" && e.key !== " ") return;
       var row = e.target.closest('.fd-bar-row[data-fd-drill]');
       if (!row || row.tagName === "SUMMARY") return; // summaries toggle natively via keyboard
       e.preventDefault();
       openDrill(row);
+    }
+    ["fdBreakdowns", "fdInteractions"].forEach(function (id) {
+      var el = $(id);
+      if (!el) return;
+      el.addEventListener("click", onClick);
+      el.addEventListener("keydown", onKey);
     });
   })();
   $("navAddList").addEventListener("click", openAddModal);
@@ -3314,8 +3345,9 @@
         var pct = Math.round(pairs[i][1] / max * 100);
         var color = opts.color || PALETTE[i % PALETTE.length];
         var valTxt = opts.pctOfTotal ? (Math.round(pairs[i][1] / (total || 1) * 100) + '%') : pairs[i][1];
+        var drillVal = (opts.values && opts.values[i] != null) ? opts.values[i] : pairs[i][0];
         var attrs = opts.drill
-          ? ' class="fd-bar-row fd-clickable" role="button" tabindex="0" data-fd-drill="' + fdEsc(opts.drill) + '" data-fd-value="' + fdEsc(pairs[i][0]) + '" aria-label="View ' + fdEsc(pairs[i][0]) + ' tickets"'
+          ? ' class="fd-bar-row fd-clickable" role="button" tabindex="0" data-fd-drill="' + fdEsc(opts.drill) + '" data-fd-value="' + fdEsc(drillVal) + '" aria-label="View ' + fdEsc(pairs[i][0]) + ' tickets"'
           : ' class="fd-bar-row"';
         html += '<div' + attrs + '>' +
           '<span class="fd-bar-label" title="' + fdEsc(pairs[i][0]) + '">' + fdEsc(pairs[i][0]) + '</span>' +
@@ -3531,7 +3563,7 @@
       var resDist = bucketize(res, [4, 24, 72], ['< 4h', '4\u201324h', '1\u20133d', '> 3d']);
 
       return {
-        cols: { cStatus: cStatus, cPriority: cPriority, cType: cType, cClient: cClient, cDept: cDept, cArea: cArea, cUserType: cUserType, cSurvey: cSurvey, cId: cId, cSubject: cSubject, cCreated: cCreated, cClosed: cClosed, cResolved: cResolved, cTags: cTags },
+        cols: { cStatus: cStatus, cPriority: cPriority, cType: cType, cClient: cClient, cDept: cDept, cArea: cArea, cUserType: cUserType, cSurvey: cSurvey, cId: cId, cSubject: cSubject, cCreated: cCreated, cClosed: cClosed, cResolved: cResolved, cTags: cTags, cInter: cInter },
         objs: objs, total: objs.length, closedCount: closedCount,
         frt: frt, res: res, inter: inter, dayPairs: dayPairs, agents: agents,
         frtDist: frtDist, resDist: resDist,
@@ -3595,8 +3627,43 @@
       fdEl('fdBreakdowns').innerHTML = bd;
 
       fdRenderSurvey(A);
+      fdRenderInteractions(A);
 
       fdEl('fdReport').classList.remove('hidden');
+    }
+
+    // Customer interactions: distribution + one-touch rate.
+    function fdRenderInteractions(A) {
+      var card = fdEl('fdInteractionsCard'), host = fdEl('fdInteractions');
+      var vals = A.inter || [];
+      if (!A.cols.cInter || !vals.length) { if (card) card.classList.add('hidden'); return; }
+      if (card) card.classList.remove('hidden');
+
+      // Count tickets by (rounded) interaction count
+      var m = {}, maxN = 0;
+      vals.forEach(function (v) { var n = Math.max(1, Math.round(v)); m[n] = (m[n] || 0) + 1; if (n > maxN) maxN = n; });
+
+      // Group a long tail into "N+" once we exceed 6 distinct buckets
+      var CAP = 6;
+      var pairs = [], values = [], tail = 0;
+      for (var n = 1; n <= maxN; n++) {
+        var cnt = m[n] || 0;
+        if (n < CAP) { pairs.push([n + (n === 1 ? ' interaction' : ' interactions'), cnt]); values.push(String(n)); }
+        else { tail += cnt; }
+      }
+      if (maxN >= CAP) { pairs.push([CAP + '+ interactions', tail]); values.push(CAP + '+'); }
+      // drop trailing empty buckets below the cap for tidiness
+      while (pairs.length > 1 && pairs[pairs.length - 1][1] === 0) { pairs.pop(); values.pop(); }
+
+      var total = vals.length;
+      var oneTouch = m[1] || 0;
+      var oneTouchPct = total ? Math.round(oneTouch / total * 100) : 0;
+      var avg = fdMean(vals), med = fdMedian(vals);
+
+      var summary = '<div class="fd-survey-summary"><b>' + oneTouchPct + '%</b> resolved in a single interaction (one-touch) \u00b7 ' +
+        'average <b>' + (Math.round(avg * 100) / 100) + '</b> \u00b7 median <b>' + (Math.round(med * 10) / 10) + '</b> interactions per ticket</div>';
+
+      host.innerHTML = summary + '<div class="fd-bars">' + fdBars(pairs, { color: PALETTE[4], drill: A.cols.cId ? 'interactions' : null, values: values }) + '</div>';
     }
 
     // Customer satisfaction: 5-point survey ratings broken down per priority.
@@ -3758,8 +3825,17 @@
         if (!grp) return false;
         var memberSet = {}; grp.members.forEach(function (m) { memberSet[m.toLowerCase()] = true; });
         predicate = function (o) { return !!memberSet[((o[c.cArea] || '').trim()).toLowerCase()]; };
+      } else if (dim === 'interactions') {
+        if (!c.cInter) return false;
+        var isMin = /\+$/.test(String(value));
+        var num = parseInt(value, 10);
+        if (isNaN(num)) return false;
+        predicate = function (o) {
+          var v = parseFloat(o[c.cInter]); if (isNaN(v)) return false;
+          v = Math.round(v);
+          return isMin ? (v >= num) : (v === num);
+        };
       } else {
-        var primaryCol = dim === 'status' ? c.cStatus : c.cPriority;
         if (!primaryCol) return false;
         var wantBlank = (value === '(blank)');
         predicate = function (o) { var v = (o[primaryCol] || '').trim(); return wantBlank ? !v : (v === value); };
@@ -3818,7 +3894,9 @@
 
       fdEl('fdTicketsTitle').textContent = (dim === 'priority')
         ? (value + ' priority tickets')
-        : (value + ' tickets');
+        : (dim === 'interactions')
+          ? ('Tickets with ' + value + (String(value) === '1' ? ' interaction' : ' interactions'))
+          : (value + ' tickets');
       fdRenderTickets();
       return true;
     };
@@ -3954,54 +4032,16 @@
 
     var BROWSE = 'https://trialbee.atlassian.net/browse/';
     var FD_BASE = 'https://trialbee.freshdesk.com/a/tickets/';
-    var CLOUD_ID = '380f5e00-0108-484d-b9f6-3f5eef65e70a';
-    var JIRA_TOOL = 'mcp__6ce1e4b3-02e1-47e0-a43f-2e210c3fdb1a__searchJiraIssuesUsingJql';
-    var JQL = 'labels = "Support-ticket" AND statusCategory != Done ORDER BY created DESC';
+    var JIRA_KEY = 'busybee_jira_v1';   // localStorage key for the imported data
 
     var PRI_ORDER = ['Highest', 'High', 'Medium', 'Low', 'Lowest'];
     var PRI_COLOR = { Highest: '#b42318', High: '#d92d20', Medium: '#dc6803', Low: '#2970ff', Lowest: '#94a3b8', None: '#94a3b8' };
     var CAT_COLOR = { 'To Do': '#64748b', 'In Progress': '#0c66e4', 'Done': '#16a34a' };
     function statusColor(cat) { return CAT_COLOR[cat] || '#64748b'; }
 
-    // Snapshot of open Jira tickets labeled "Support-ticket" (trialbee / DevTeam).
-    // No PII: assignees and descriptions are deliberately omitted, so FD # is N/A
-    // in the snapshot; a live Refresh (Cowork/Jira connector) fills it from the description.
-    var TICKETS = [
-  { key: "TBO-12714", summary: "distance to site exports in unknown units", status: "Backlog", cat: "To Do", priority: "Medium", type: "Bug", created: "2026-06-12T21:14:03.485+0200" },
-  { key: "TBO-12707", summary: "Mentor GLOW Study | SMS Report Error", status: "Backlog", cat: "To Do", priority: "High", type: "Service Request", created: "2026-06-12T14:34:14.560+0200" },
-  { key: "TBO-12658", summary: "Fw: GZMR | candidate follow-up", status: "Backlog", cat: "To Do", priority: "Medium", type: "Bug", created: "2026-06-09T21:40:26.271+0200" },
-  { key: "TBO-12642", summary: "Requesting study dashboard metrics after close-out", status: "Backlog", cat: "To Do", priority: "Low", type: "Service Request", created: "2026-06-05T20:59:01.860+0200" },
-  { key: "TBO-12628", summary: "GZMR-19977 and GZMR-13502 were MR qualified but site assignment wasn't updated", status: "Backlog", cat: "To Do", priority: "Low", type: "Bug", created: "2026-06-03T21:39:10.115+0200" },
-  { key: "TBO-12627", summary: "Issue exporting answers in Honey", status: "Backlog", cat: "To Do", priority: "High", type: "Bug", created: "2026-06-03T15:06:46.202+0200" },
-  { key: "TBO-12594", summary: "No test emails coming through", status: "Backlog", cat: "To Do", priority: "Low", type: "Bug", created: "2026-06-01T17:19:29.904+0200" },
-  { key: "TBO-12544", summary: "Bug: Reminder not on reports", status: "Backlog", cat: "To Do", priority: "Low", type: "Bug", created: "2026-05-26T21:26:08.924+0200" },
-  { key: "TBO-12543", summary: "Consideration: Label change from Comment to Note", status: "Backlog", cat: "To Do", priority: "Low", type: "Service Request", created: "2026-05-26T17:57:46.629+0200" },
-  { key: "TBO-12540", summary: "Site User Honey Access", status: "Backlog", cat: "To Do", priority: "Low", type: "Bug", created: "2026-05-26T14:43:26.898+0200" },
-  { key: "TBO-12514", summary: "Potential bug in system_gender question", status: "Backlog", cat: "To Do", priority: "Low", type: "Bug", created: "2026-05-20T15:12:59.086+0200" },
-  { key: "TBO-12490", summary: "Boolean Yes/No visibility logic does not reveal questions as set", status: "Backlog", cat: "To Do", priority: "Medium", type: "Bug", created: "2026-05-14T13:15:31.266+0200" },
-  { key: "TBO-12419", summary: "Run UAT with Nathan (Gustaf/Nathan)", status: "Backlog", cat: "To Do", priority: "Low", type: "Sub-Task", created: "2026-05-04T10:11:44.689+0200" },
-  { key: "TBO-12363", summary: "Verify that Comprehend is working in all non-prod environment", status: "Backlog", cat: "To Do", priority: "Low", type: "Sub-Task", created: "2026-04-28T10:00:29.385+0200" },
-  { key: "TBO-12362", summary: "Verify that Comprehend is working in prod", status: "Backlog", cat: "To Do", priority: "Low", type: "Sub-Task", created: "2026-04-28T09:59:59.509+0200" },
-  { key: "TBO-12361", summary: "Verify that replay functionality is working (and part of IaC)", status: "Backlog", cat: "To Do", priority: "Low", type: "Sub-Task", created: "2026-04-28T09:59:47.603+0200" },
-  { key: "TBO-12360", summary: "Honey Comment Censorship issue (Comprehend)", status: "Backlog", cat: "To Do", priority: "High", type: "Bug", created: "2026-04-28T09:59:09.777+0200" },
-  { key: "TBO-12321", summary: "Takeda | MarsLight-11 | Node-RED automation Set-up (Mid May)", status: "Need more info", cat: "To Do", priority: "Low", type: "Service Request", created: "2026-04-23T16:40:59.994+0200" },
-  { key: "TBO-12097", summary: "Handle webhook from Node-RED and run requested automation", status: "In Code Review", cat: "In Progress", priority: "Low", type: "Sub-Task", created: "2026-04-13T15:17:32.036+0200" },
-  { key: "TBO-12096", summary: "Convert AMQP-events using Node-RED running in Docker Swarm to webhooks", status: "In Code Review", cat: "In Progress", priority: "Low", type: "Sub-Task", created: "2026-04-13T14:52:07.215+0200" },
-  { key: "TBO-12086", summary: "Axsome FORWARD and CLARITY Tag Automation Request", status: "In Code Review", cat: "In Progress", priority: "Medium", type: "Service Request", created: "2026-04-10T19:06:23.204+0200" },
-  { key: "TBO-12028", summary: "Allow user email address editing in global admin", status: "Backlog", cat: "To Do", priority: "Low", type: "Story", created: "2026-04-01T11:03:44.091+0200" },
-  { key: "TBO-11949", summary: "Reset password emails not being received", status: "In Code Review", cat: "In Progress", priority: "High", type: "Service Request", created: "2026-03-25T14:39:01.401+0100" },
-  { key: "TBO-11946", summary: "SYX-5219-101 | Self-Assessment Answers Not Loading - Insights Tab", status: "In Progress", cat: "In Progress", priority: "Medium", type: "Bug", created: "2026-03-25T12:34:29.667+0100" },
-  { key: "TBO-11937", summary: "Zip / Postal Code Not Valid", status: "Backlog", cat: "To Do", priority: "High", type: "Bug", created: "2026-03-24T14:12:56.942+0100" },
-  { key: "TBO-11911", summary: "Help center button not opening widget in certain view/page", status: "Backlog", cat: "To Do", priority: "Low", type: "Bug", created: "2026-03-20T14:08:05.386+0100" },
-  { key: "TBO-11900", summary: "GZPW | Candidate report bug", status: "Backlog", cat: "To Do", priority: "Low", type: "Service Request", created: "2026-03-13T16:36:21.160+0100" },
-  { key: "TBO-11871", summary: "Duplicate Workspaces/Tenants in Honey", status: "Backlog", cat: "To Do", priority: "Low", type: "Service Request", created: "2026-03-11T11:04:41.125+0100" },
-  { key: "TBO-11795", summary: "Welcome SMS “@” Placeholder Not Populating Phone Number in Honey", status: "In Code Review", cat: "In Progress", priority: "High", type: "Bug", created: "2026-03-02T11:52:28.443+0100" },
-  { key: "TBO-11674", summary: "Sanofi 2 Way API | Consent Capture", status: "In Code Review", cat: "In Progress", priority: "High", type: "Service Request", created: "2026-02-20T13:24:38.713+0100" },
-  { key: "TBO-11639", summary: "System text - Full Consent text link", status: "Backlog", cat: "To Do", priority: "Low", type: "Task", created: "2026-02-13T15:51:43.755+0100" },
-    ];
-
-    // Working state
-    var RAW = TICKETS.slice();
+    // Working state — populated by importing a JSON export (no live fetching).
+    var RAW = [];
+    var jName = '', jExportedAt = '';
     var fStatus = {}, fPri = {};   // active filters (empty = all)
     var jSearch = '';
     var jSortKey = 'created', jSortDir = -1;
@@ -4185,40 +4225,9 @@
     function jSetStatus(type, msg) { var el = jEl('jiraStatus'); el.className = 'jt-status ' + type; el.textContent = msg; el.classList.remove('hidden'); }
     function jHideStatus() { jEl('jiraStatus').classList.add('hidden'); }
 
-    async function fetchLive() {
-      var nodes = [], token = null, guard = 0;
-      do {
-        var args = { cloudId: CLOUD_ID, jql: JQL, maxResults: 100, fields: ['summary', 'status', 'priority', 'issuetype', 'created', 'description'], responseContentFormat: 'markdown' };
-        if (token) args.nextPageToken = token;
-        var r = await window.cowork.callMcpTool(JIRA_TOOL, args);
-        if (r.isError) throw new Error((r.content && r.content[0] && r.content[0].text) || 'Tool error');
-        var data = r.structuredContent != null ? r.structuredContent : JSON.parse(r.content[0].text);
-        var page = (data.issues && data.issues.nodes) || [];
-        nodes = nodes.concat(page);
-        token = data.issues && data.issues.pageInfo && data.issues.pageInfo.hasNextPage ? data.issues.pageInfo.endCursor : null;
-      } while (token && ++guard < 20);
-      return nodes.map(function (n) {
-        var f = n.fields || {};
-        var dr = f.description;
-        var ds = typeof dr === 'string' ? dr : (dr ? JSON.stringify(dr) : '');
-        var mm = ds.match(/FD\s*#\s*(\d+)/i);
-        return {
-          key: n.key, fd: mm ? mm[1] : 'N/A', summary: f.summary || '',
-          status: (f.status && f.status.name) || 'Unknown',
-          cat: (f.status && f.status.statusCategory && f.status.statusCategory.name) || 'To Do',
-          priority: (f.priority && f.priority.name) || 'None',
-          type: (f.issuetype && f.issuetype.name) || '', created: f.created || null
-        };
-      });
-    }
-
-    // Static-host data source (e.g. GitHub Pages): a same-origin JSON file kept
-    // fresh by a backend that holds the Jira credentials (a scheduled GitHub
-    // Action, or a serverless proxy). Override with window.JIRA_DATA_URL if needed.
-    var JIRA_DATA_URL = (typeof window !== 'undefined' && window.JIRA_DATA_URL) || 'jira-tickets.json';
-
+    // Normalize an imported ticket to the flat shape the dashboard uses.
     function normalizeTicket(n) {
-      if (n && n.fields) { // raw Jira issue node
+      if (n && n.fields) { // raw Jira issue node (extract only the FD# from description)
         var f = n.fields, dr = f.description;
         var ds = typeof dr === 'string' ? dr : (dr ? JSON.stringify(dr) : '');
         var mm = ds.match(/FD\s*#\s*(\d+)/i);
@@ -4230,7 +4239,6 @@
           type: (f.issuetype && f.issuetype.name) || '', created: f.created || null
         };
       }
-      // already-flat shape
       return {
         key: n.key || '', fd: n.fd || 'N/A', summary: n.summary || '',
         status: n.status || 'Unknown', cat: n.cat || 'To Do',
@@ -4238,53 +4246,92 @@
       };
     }
 
-    async function loadFromUrl(url) {
-      var res = await fetch(url, { cache: 'no-store' });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      var data = await res.json();
+    // Extract the tickets array from either a flat array or the export wrapper.
+    function extractTickets(data) {
       var arr = Array.isArray(data) ? data
-        : (data.tickets || (data.issues && data.issues.nodes) || data.issues || []);
-      if (!Array.isArray(arr)) throw new Error('Unexpected JSON shape');
+        : (data && (data.tickets || (data.issues && data.issues.nodes) || data.issues)) || [];
+      if (!Array.isArray(arr)) throw new Error('No tickets array found in the JSON.');
       return arr.map(normalizeTicket);
     }
 
-    jEl('jiraRefreshBtn').addEventListener('click', async function () {
-      var btn = this; btn.disabled = true; btn.textContent = '\u2026 Refreshing'; jHideStatus();
+    function subText() {
+      var when = jExportedAt ? (' \u00b7 exported ' + fmtDate(jExportedAt)) : (jName ? (' \u00b7 ' + jName) : '');
+      return 'Open tickets labeled Support-ticket \u00b7 DevTeam (TBO) \u00b7 ' + RAW.length + ' open' + when;
+    }
+
+    function showEmpty(isEmpty) {
+      jEl('jiraEmpty').classList.toggle('hidden', !isEmpty);
+      jEl('jiraReport').classList.toggle('hidden', isEmpty);
+    }
+
+    // Apply a freshly-loaded set of tickets to the dashboard.
+    function applyData(tickets, name, exportedAt) {
+      RAW = tickets;
+      jName = name || '';
+      jExportedAt = exportedAt || '';
+      fStatus = {}; fPri = {}; jSearch = '';
+      var box = jEl('jiraSearch'); if (box) box.value = '';
+      showEmpty(RAW.length === 0);
+      if (RAW.length) renderAll();
+      jEl('jiraSub').textContent = RAW.length ? subText() : 'Import a JIRA support-ticket JSON export to see the dashboard.';
+    }
+
+    // Persist the imported data so an accidental close doesn't lose it.
+    function persist() {
       try {
-        var data, src;
-        if (window.cowork && typeof window.cowork.callMcpTool === 'function') {
-          data = await fetchLive(); src = 'Jira (live)';
-        } else {
-          data = await loadFromUrl(JIRA_DATA_URL); src = 'published data';
+        if (!RAW.length) { localStorage.removeItem(JIRA_KEY); return; }
+        localStorage.setItem(JIRA_KEY, JSON.stringify({ tickets: RAW, name: jName, exportedAt: jExportedAt }));
+      } catch (e) { /* quota / storage disabled — keep working in-memory */ }
+    }
+
+    function handleFile(file) {
+      var reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          var data = JSON.parse(e.target.result);
+          var tickets = extractTickets(data);
+          if (!tickets.length) throw new Error('The file contains no tickets.');
+          applyData(tickets, file.name, data && data.exportedAt);
+          persist();
+          jSetStatus('success', '\u2705 Imported ' + tickets.length + ' tickets' + (file.name ? (' from ' + file.name) : '') + '.');
+        } catch (err) {
+          jSetStatus('error', '\u26a0\ufe0f Could not read this JSON: ' + (err && err.message ? err.message : err));
         }
-        RAW = data;
-        fStatus = {}; fPri = {}; jSearch = ''; jEl('jiraSearch').value = '';
-        renderAll();
-        jEl('jiraSub').textContent = 'Open tickets labeled Support-ticket \u00b7 DevTeam (TBO) \u00b7 ' + RAW.length + ' open \u00b7 updated ' + new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-        jSetStatus('success', 'Refreshed ' + RAW.length + ' open tickets from ' + src + '.');
-      } catch (err) {
-        var m = (err && err.message) ? err.message : String(err);
-        if (!(window.cowork && window.cowork.callMcpTool)) {
-          jSetStatus('error', 'No live source available. Publish a sanitized "' + JIRA_DATA_URL + '" next to this page (via a scheduled GitHub Action or serverless proxy that holds the Jira token) and Refresh will load it. Showing the snapshot (' + TICKETS.length + ' tickets). [' + m + ']');
-        } else {
-          jSetStatus('error', 'Could not refresh from Jira: ' + m);
-        }
-      }
-      btn.disabled = false; btn.innerHTML = '&#8635; Refresh';
+      };
+      reader.onerror = function () { jSetStatus('error', '\u26a0\ufe0f Failed to read the file.'); };
+      reader.readAsText(file);
+    }
+
+    // ---- Import wiring (button + drop zone + file input) ----
+    var jInput = jEl('jiraFileInput'), jArea = jEl('jiraUploadArea');
+    jEl('jiraImportBtn').addEventListener('click', function () { jInput.click(); });
+    jArea.addEventListener('click', function () { jInput.click(); });
+    jArea.addEventListener('dragover', function (e) { e.preventDefault(); jArea.classList.add('drag-over'); });
+    jArea.addEventListener('dragleave', function () { jArea.classList.remove('drag-over'); });
+    jArea.addEventListener('drop', function (e) {
+      e.preventDefault(); jArea.classList.remove('drag-over');
+      var f = e.dataTransfer.files[0]; if (f) handleFile(f);
     });
+    jInput.addEventListener('change', function () { if (jInput.files[0]) { handleFile(jInput.files[0]); jInput.value = ''; } });
 
-    // On open, silently try the published data file; keep the snapshot if absent.
-    (function autoLoad() {
-      if (window.cowork && window.cowork.callMcpTool) return; // Cowork uses live refresh instead
-      loadFromUrl(JIRA_DATA_URL).then(function (data) {
-        if (!data || !data.length) return;
-        RAW = data; renderAll();
-        jEl('jiraSub').textContent = 'Open tickets labeled Support-ticket \u00b7 DevTeam (TBO) \u00b7 ' + RAW.length + ' open \u00b7 published data';
-      }).catch(function () { /* no published file — keep snapshot silently */ });
+    // ---- Restore a previously-imported file, or show the empty state ----
+    (function restore() {
+      var raw;
+      try { raw = localStorage.getItem(JIRA_KEY); } catch (e) { raw = null; }
+      if (raw) {
+        try {
+          var saved = JSON.parse(raw);
+          var tickets = extractTickets(saved);
+          if (tickets.length) {
+            applyData(tickets, saved.name, saved.exportedAt);
+            jSetStatus('success', '\u2705 Restored ' + tickets.length + ' tickets from your last import.');
+            return;
+          }
+        } catch (e) { try { localStorage.removeItem(JIRA_KEY); } catch (e2) {} }
+      }
+      showEmpty(true);
+      jEl('jiraSub').textContent = 'Import a JIRA support-ticket JSON export to see the dashboard.';
     })();
-
-    jEl('jiraSub').textContent = 'Open tickets labeled Support-ticket \u00b7 DevTeam (TBO) \u00b7 ' + RAW.length + ' open \u00b7 snapshot';
-    renderAll();
   })();
 
 
